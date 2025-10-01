@@ -1,0 +1,57 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  cloud:
+    gcp:
+      sql:
+        instance-connection-name: wwartService-471711:europe-west1:wwartService-db
+        database-name: wwartService-db
+
+  datasource:
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  mail:
+    host: smtp.wp.pl
+    port: 465
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+          starttls:
+            enable: false
+          from: ${SPRING_MAIL_FROM:}
+
+  task:
+    scheduling:
+      pool:
+        size: 5
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful

@@ -31,9 +31,7 @@ public class InvoiceController {
     private final PdfGeneratorService pdfGeneratorService;
     private final EmailService emailService;
 
-    public InvoiceController(final InvoiceService invoiceService,
-                             final PdfGeneratorService pdfGeneratorService,
-                             final EmailService emailService) {
+    public InvoiceController(final InvoiceService invoiceService, final PdfGeneratorService pdfGeneratorService, final EmailService emailService) {
         this.invoiceService = invoiceService;
         this.pdfGeneratorService = pdfGeneratorService;
         this.emailService = emailService;
@@ -41,18 +39,21 @@ public class InvoiceController {
 
     @PostMapping(value = "/save-invoice", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> saveInvoice(@RequestBody InvoiceRequest invoiceRequest) {
-        if (invoiceRequest == null ||
-            invoiceRequest.getBuyerName() == null ||
-            invoiceRequest.getOrders() == null) {
+        if (invoiceRequest == null || invoiceRequest.getBuyerName() == null || invoiceRequest.getOrders() == null) {
             logger.error("Invalid request data - required fields missing");
             throw new IllegalArgumentException("Invalid request payload");
         }
 
         if (invoiceRequest.getAcceptedTerms() == null || !invoiceRequest.getAcceptedTerms()) {
-            logger.error("Terms and conditions were not accepted by client: {}",
-                         invoiceRequest.getBuyerName());
+            logger.error("Terms and conditions were not accepted by client: {}", invoiceRequest.getBuyerName());
             return ResponseEntity.badRequest()
                                  .body("Terms and conditions have to be accepted");
+        }
+
+        if (invoiceRequest.getShouldSendPDF() == null || !invoiceRequest.getShouldSendPDF()) {
+            logger.error("ShouldSendPDF were not accepted by client: {}", invoiceRequest.getBuyerName());
+            return ResponseEntity.badRequest()
+                                 .body("ShouldSendPDF have to be");
         }
 
         try {
@@ -76,10 +77,7 @@ public class InvoiceController {
                                                                         .append("; ");
                                                          }
 
-                                                         return new Order(orderReq.getName(),
-                                                                          description.toString(),
-                                                                          orderReq.getQuantity(),
-                                                                          orderReq.getPrice());
+                                                         return new Order(orderReq.getName(), description.toString(), orderReq.getQuantity(), orderReq.getPrice());
                                                      })
                                                      .collect(Collectors.toList());
 
@@ -91,11 +89,10 @@ public class InvoiceController {
                                                    invoiceRequest.getBuyerPhone(),
                                                    LocalDateTime.now(),
                                                    false,
+                                                   invoiceRequest.getShouldSendPDF(),
                                                    orders);
 
-            logger.info("Saving invoice {} for client: {}",
-                        newInvoice.getInvoiceId(),
-                        invoiceRequest.getBuyerName());
+            logger.info("Saving invoice {} for client: {}", newInvoice.getInvoiceId(), invoiceRequest.getBuyerName());
 
             if (invoiceRequest.getOrderSummary() != null) {
                 logger.info("Order statistics - Products: {}, Personalized: {}, Shipping method: {}",
@@ -115,8 +112,7 @@ public class InvoiceController {
 
             return ResponseEntity.ok()
                                  .contentType(MediaType.TEXT_PLAIN)
-                                 .body("Invoice saved successfully with ID: " +
-                                       newInvoice.getInvoiceId());
+                                 .body("Invoice saved successfully with ID: " + newInvoice.getInvoiceId());
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -131,9 +127,7 @@ public class InvoiceController {
             throw new IllegalArgumentException("Invalid request payload");
         }
 
-        emailService.sendEmail(mailRequest.getAddressEmail(),
-                               mailRequest.getName(),
-                               mailRequest.getMessage());
+        emailService.sendEmail(mailRequest.getAddressEmail(), mailRequest.getName(), mailRequest.getMessage());
         return ResponseEntity.ok()
                              .build();
     }
@@ -163,8 +157,7 @@ public class InvoiceController {
     }
 
     @GetMapping(value = "/get-invoices-data", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Invoice>> getInvoices(@RequestParam(required = false) String invoiceId,
-                                                     @RequestParam(required = false) String addressEmail) {
+    public ResponseEntity<List<Invoice>> getInvoices(@RequestParam(required = false) String invoiceId, @RequestParam(required = false) String addressEmail) {
 
         try {
             List<Invoice> invoices = new ArrayList<>();

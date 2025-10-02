@@ -54,6 +54,7 @@ public class InvoiceServiceTest {
                                                    buyerPhone,
                                                    ordersDate,
                                                    false,
+                                                   false,
                                                    orders)));
 
         entities.add(new InvoiceEntity(new Invoice(2,
@@ -63,6 +64,7 @@ public class InvoiceServiceTest {
                                                    null,
                                                    buyerPhone,
                                                    ordersDate,
+                                                   false,
                                                    false,
                                                    orders)));
         when(invoiceRepository.findAll()).thenReturn(entities);
@@ -115,6 +117,7 @@ public class InvoiceServiceTest {
                                                                      buyerPhone,
                                                                      ordersDate,
                                                                      false,
+                                                                     false,
                                                                      orders));
         when(invoiceRepository.findInvoicesByInvoiceId(invoiceId)).thenReturn(entities);
 
@@ -142,6 +145,7 @@ public class InvoiceServiceTest {
                 null,
                 buyerPhone,
                 ordersDate,
+                false,
                 false,
                 orders)));
         when(invoiceRepository.getLastInvoices()).thenReturn(lastInvoiceEntity);
@@ -174,6 +178,7 @@ public class InvoiceServiceTest {
                                                                                    buyerPhone,
                                                                                    ordersDate,
                                                                                    false,
+                                                                                   false,
                                                                                    orders)));
         when(invoiceRepository.findInvoicesByEmail(email)).thenReturn(entities);
 
@@ -203,6 +208,7 @@ public class InvoiceServiceTest {
                                             null,
                                             buyerPhone,
                                             ordersDate,
+                                            false,
                                             false,
                                             orders);
         final InvoiceEntity savedEntity = new InvoiceEntity(invoice);

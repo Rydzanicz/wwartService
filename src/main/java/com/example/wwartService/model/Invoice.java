@@ -18,6 +18,7 @@ public class Invoice {
     private final String buyerPhone;
     private final LocalDateTime orderDate;
     private final boolean isEmailSend;
+    private final boolean shouldSendPDF;
     private final List<Order> order;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private String invoiceId;
@@ -30,6 +31,7 @@ public class Invoice {
                    final String buyerPhone,
                    final LocalDateTime orderDate,
                    final boolean isEmailSend,
+                   final boolean shouldSendPDF,
                    final List<Order> order) {
         if (buyerName == null || buyerName.isEmpty()) {
             throw new IllegalArgumentException("Name cannot be null or empty.");
@@ -58,6 +60,7 @@ public class Invoice {
         this.buyerPhone = buyerPhone;
         this.orderDate = orderDate;
         this.isEmailSend = isEmailSend;
+        this.shouldSendPDF = shouldSendPDF;
         this.order = order;
     }
 
@@ -69,6 +72,7 @@ public class Invoice {
                    final String buyerPhone,
                    final String orderDate,
                    final boolean isEmailSend,
+                   final boolean shouldSendPDF,
                    final List<Order> order) {
         if (buyerName == null || buyerName.isEmpty()) {
             throw new IllegalArgumentException("Name cannot be null or empty.");
@@ -97,6 +101,7 @@ public class Invoice {
         this.buyerPhone = buyerPhone;
         this.orderDate = LocalDateTime.parse(orderDate, formatter);
         this.isEmailSend = isEmailSend;
+        this.shouldSendPDF = shouldSendPDF;
         this.order = order;
     }
 
@@ -109,6 +114,7 @@ public class Invoice {
         this.buyerPhone = null;
         this.orderDate = LocalDateTime.now();
         this.isEmailSend = true;
+        this.shouldSendPDF = false;
         this.order = new ArrayList<>();
     }
 
@@ -123,6 +129,7 @@ public class Invoice {
         this.buyerPhone = invoice.getPhone();
         this.orderDate = LocalDateTime.parse(invoice.getOrderDate(), formatter);
         this.isEmailSend = invoice.isEmailSend();
+        this.shouldSendPDF = invoice.isShouldSendPDF();
         this.order = invoice.getOrders()
                             .stream()
                             .map(Order::new)
@@ -205,6 +212,10 @@ public class Invoice {
 
     public boolean isEmailSend() {
         return isEmailSend;
+    }
+
+    public boolean isShouldSendPDF() {
+        return shouldSendPDF;
     }
 
     public DateTimeFormatter getFormatter() {

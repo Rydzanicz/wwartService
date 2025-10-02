@@ -19,11 +19,11 @@ import static org.mockito.Mockito.*;
 
 class EmailPolicyTest {
 
+    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private InvoiceService invoiceService;
     private EmailService emailService;
     private FailedProcessedPolicyService failedProcessedPolicyService;
     private EmailPolicy emailPolicy;
-    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @BeforeEach
     void setUp() {
@@ -45,7 +45,7 @@ class EmailPolicyTest {
         final ArrayList<Order> orders = new ArrayList<>();
         orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, orders);
+        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
         final List<Invoice> unsentInvoices = List.of(invoice);
 
         when(invoiceService.getNoSendInvoicesWithExcluding(anyList())).thenReturn(unsentInvoices);
@@ -60,6 +60,38 @@ class EmailPolicyTest {
 
         // Then
         verify(emailService, times(1)).sendEmails(eq(invoice.getBuyerAddressEmail()), any(byte[].class), anyString());
+        verify(emailService, times(0)).sendPdfEmail(eq(invoice.getBuyerAddressEmail()));
+        verify(invoiceService, times(1)).updateEmailSendStatus(eq(invoice.getInvoiceId()), eq(true));
+    }
+
+    @Test
+    void shouldSendEmailForUnsentInvoicesWithPDF() {
+        // Given
+        final String buyerName = "Nabywca";
+        final String buyerAddress = "ul. Przykładowa 2, 00-000 Warszawa";
+        final String buyerEmail = "buyer@example.com";
+        final String buyerNip = "0987654321";
+        final String buyerPhone = "987654321";
+        final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
+        final ArrayList<Order> orders = new ArrayList<>();
+        orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
+
+        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, true, orders);
+        final List<Invoice> unsentInvoices = List.of(invoice);
+
+        when(invoiceService.getNoSendInvoicesWithExcluding(anyList())).thenReturn(unsentInvoices);
+        when(failedProcessedPolicyService.findInvoicesByInvoiceId(invoice.getInvoiceId())).thenReturn(Optional.empty());
+        doNothing().when(emailService)
+                   .sendEmails(anyString(), any(byte[].class), anyString());
+        doNothing().when(invoiceService)
+                   .updateEmailSendStatus(anyString(), eq(true));
+
+        // When
+        emailPolicy.executeEmailPolicy();
+
+        // Then
+        verify(emailService, times(1)).sendEmails(eq(invoice.getBuyerAddressEmail()), any(byte[].class), anyString());
+        verify(emailService, times(1)).sendPdfEmail(eq(invoice.getBuyerAddressEmail()));
         verify(invoiceService, times(1)).updateEmailSendStatus(eq(invoice.getInvoiceId()), eq(true));
     }
 
@@ -75,7 +107,7 @@ class EmailPolicyTest {
         final ArrayList<Order> orders = new ArrayList<>();
         orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, orders);
+        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
         final List<Invoice> unsentInvoices = List.of(invoice);
 
         when(invoiceService.getNoSendInvoicesWithExcluding(anyList())).thenReturn(unsentInvoices);
@@ -87,10 +119,7 @@ class EmailPolicyTest {
         emailPolicy.executeEmailPolicy();
 
         // then
-        verify(failedProcessedPolicyService, times(1)).logError(eq("EmailPolicy"),
-                                                                eq("Email service failed"),
-                                                                eq(invoice.getInvoiceId()),
-                                                                any());
+        verify(failedProcessedPolicyService, times(1)).logError(eq("EmailPolicy"), eq("Email service failed"), eq(invoice.getInvoiceId()), any());
         verify(invoiceService, never()).updateEmailSendStatus(anyString(), eq(true));
     }
 
@@ -106,7 +135,7 @@ class EmailPolicyTest {
         final ArrayList<Order> orders = new ArrayList<>();
         orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, orders);
+        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
         final List<Invoice> unsentInvoices = List.of(invoice);
 
         final FailedProcessedPolicyEntity failedPolicy = new FailedProcessedPolicyEntity();

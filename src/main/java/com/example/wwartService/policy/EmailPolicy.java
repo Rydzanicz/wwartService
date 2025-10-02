@@ -17,14 +17,12 @@ import java.util.Optional;
 @Component
 public class EmailPolicy {
     private final static String POLICY_NAME = "EmailPolicy";
+    final List<Invoice> processedFailed = new ArrayList<>();
     private final InvoiceService invoiceService;
     private final EmailService emailService;
     private final FailedProcessedPolicyService failedProcessedPolicyService;
-    final List<Invoice> processedFailed = new ArrayList<>();
 
-    public EmailPolicy(final InvoiceService invoiceService,
-                       final EmailService emailService,
-                       final FailedProcessedPolicyService failedProcessedPolicyService) {
+    public EmailPolicy(final InvoiceService invoiceService, final EmailService emailService, final FailedProcessedPolicyService failedProcessedPolicyService) {
         this.invoiceService = invoiceService;
         this.emailService = emailService;
         this.failedProcessedPolicyService = failedProcessedPolicyService;
@@ -39,8 +37,9 @@ public class EmailPolicy {
 
         for (Invoice invoice : unsentInvoices) {
             final Optional<FailedProcessedPolicyEntity> failedProcessed = failedProcessedPolicyService.findInvoicesByInvoiceId(invoice.getInvoiceId());
-            if (failedProcessed.isPresent() && failedProcessed.get()
-                                                              .getRetryCount() > 10) {
+            if (failedProcessed.isPresent() &&
+                failedProcessed.get()
+                               .getRetryCount() > 10) {
                 processedFailed.add(invoice);
                 return;
             }
@@ -48,13 +47,16 @@ public class EmailPolicy {
             try {
                 byte[] pdfAttachment = generateInvoicePdf(invoice);
                 emailService.sendEmails(invoice.getBuyerAddressEmail(), pdfAttachment, "Faktura-" + invoice.getInvoiceId() + ".pdf");
+
+                if (invoice.isShouldSendPDF()) {
+                    emailService.sendPdfEmail(invoice.getBuyerAddressEmail());
+                }
+
                 invoiceService.updateEmailSendStatus(invoice.getInvoiceId(), true);
             } catch (Exception e) {
-              final   String errorMessage = e.getCause() != null ? e.getCause().getLocalizedMessage() : e.getMessage();
-                failedProcessedPolicyService.logError(POLICY_NAME,
-                                                      errorMessage,
-                                                      invoice.getInvoiceId(),
-                                                      failedProcessed);
+                final String errorMessage = e.getCause() != null ? e.getCause()
+                                                                    .getLocalizedMessage() : e.getMessage();
+                failedProcessedPolicyService.logError(POLICY_NAME, errorMessage, invoice.getInvoiceId(), failedProcessed);
             }
         }
     }

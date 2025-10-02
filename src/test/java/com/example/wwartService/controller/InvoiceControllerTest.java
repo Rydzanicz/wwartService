@@ -2,9 +2,11 @@ package com.example.wwartService.controller;
 
 import com.example.wwartService.controler.InvoiceController;
 import com.example.wwartService.controler.InvoiceRequest;
+import com.example.wwartService.controler.MailRequest;
 import com.example.wwartService.controler.OrderRequest;
 import com.example.wwartService.model.Invoice;
 import com.example.wwartService.model.Order;
+import com.example.wwartService.service.EmailService;
 import com.example.wwartService.service.InvoiceService;
 import com.example.wwartService.service.PdfGeneratorService;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +49,9 @@ public class InvoiceControllerTest {
     @Mock
     private PdfGeneratorService pdfGeneratorService;
 
+    @Mock
+    private EmailService emailService;
+
     @InjectMocks
     private InvoiceController invoiceController;
 
@@ -76,6 +81,7 @@ public class InvoiceControllerTest {
                                                         null,
                                                         null)));
         validRequest.setAcceptedTerms(true);
+        validRequest.setShouldSendPDF(true);
 
         final Invoice lastInvoice = new Invoice(1,
                                                 "Last Buyer",
@@ -84,6 +90,7 @@ public class InvoiceControllerTest {
                                                 "0987654321",
                                                 "123456789",
                                                 LocalDateTime.now(),
+                                                false,
                                                 false,
                                                 orders);
 
@@ -171,6 +178,7 @@ public class InvoiceControllerTest {
                                                                           "M",
                                                                           "Czerwony")));
         validRequest.setAcceptedTerms(true);
+        validRequest.setShouldSendPDF(true);
 
         when(invoiceService.getLastInvoices()).thenThrow(new RuntimeException("Database error"));
 
@@ -200,6 +208,7 @@ public class InvoiceControllerTest {
                                                 "",
                                                 "123456789",
                                                 ordersDate,
+                                                false,
                                                 false,
                                                 orders);
 
@@ -232,6 +241,7 @@ public class InvoiceControllerTest {
                                             null,
                                             "123456789",
                                             ordersDate,
+                                            false,
                                             false,
                                             orders);
         when(invoiceService.getInvoicesByInvoiceId("FV/0001/01/2025")).thenReturn(invoice);
@@ -296,6 +306,7 @@ public class InvoiceControllerTest {
                                  "123456789",
                                  ordersDate,
                                  false,
+                                 false,
                                  orders));
         when(invoiceService.getInvoicesByAddressEmail("jan.kowalski@example.com")).thenReturn(
                 invoices);
@@ -329,6 +340,7 @@ public class InvoiceControllerTest {
                                  "123456789",
                                  ordersDate,
                                  false,
+                                 false,
                                  orders));
         invoices.add(new Invoice(2,
                                  "Anna Nowak",
@@ -337,6 +349,7 @@ public class InvoiceControllerTest {
                                  null,
                                  "123456789",
                                  ordersDate,
+                                 false,
                                  false,
                                  orders));
         when(invoiceService.getAllInvoices()).thenReturn(invoices);
@@ -407,12 +420,97 @@ public class InvoiceControllerTest {
                                                        .getAllInvoices();
 
         // when
-        ResponseEntity<List<Invoice>> response = invoiceController.getInvoices(null, null);
+        final ResponseEntity<List<Invoice>> response = invoiceController.getInvoices(null, null);
 
         // then
         assertNotNull(response);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
+    }
+
+    @Test
+    void testSaveInvoiceTermsNotAccepted() {
+
+        // given
+        final InvoiceRequest request = new InvoiceRequest();
+        request.setBuyerName("Test Buyer");
+        request.setOrders(List.of(new OrderRequest()));
+        request.setAcceptedTerms(false);
+        request.setShouldSendPDF(true);
+
+        // when
+        final ResponseEntity<String> response = invoiceController.saveInvoice(request);
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Terms and conditions have to be accepted", response.getBody());
+    }
+
+    @Test
+    void testSaveInvoiceShouldSendPDFNotAccepted() {
+
+        // given
+        final InvoiceRequest request = new InvoiceRequest();
+        request.setBuyerName("Test Buyer");
+        request.setOrders(List.of(new OrderRequest()));
+        request.setAcceptedTerms(true);
+        request.setShouldSendPDF(false);
+
+        // when
+        final ResponseEntity<String> response = invoiceController.saveInvoice(request);
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("ShouldSendPDF have to be", response.getBody());
+    }
+
+    @Test
+    void testGenerateInvoiceIOException() throws IOException {
+
+        // given
+        final String invoiceId = "FV/0001/01/2025";
+        final Invoice invoice = new Invoice();
+        when(invoiceService.getInvoicesByInvoiceId(invoiceId)).thenReturn(invoice);
+        when(pdfGeneratorService.generateInvoicePdf(invoice)).thenThrow(new IOException("File error"));
+
+        // when
+        final ResponseEntity<byte[]> response = invoiceController.generateInvoice(invoiceId);
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertTrue(new String(response.getBody()).contains("Error generating invoice"));
+    }
+
+    @Test
+    void testGenerateMailSuccess() {
+        // given
+        final MailRequest mailRequest = new MailRequest();
+        mailRequest.setAddressEmail("email@example.com");
+        mailRequest.setName("Jan Kowalski");
+        mailRequest.setMessage("Test message");
+
+        // when
+        final ResponseEntity<Void> response = invoiceController.generateMail(mailRequest);
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(emailService, times(1)).sendEmail(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void testGenerateMailInvalidRequest() {
+        final MailRequest invalidRequest = new MailRequest();
+        invalidRequest.setAddressEmail(null);
+
+        // when
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                                                                () -> {
+                                                                    invoiceController.generateMail(
+                                                                            invalidRequest);
+                                                                });
+
+        // then
+        assertEquals("Invalid request payload", exception.getMessage());
     }
 
 }

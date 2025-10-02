@@ -14,6 +14,7 @@ public class InvoiceRequest {
     private String buyerNip;
     private String buyerPhone;
     private Boolean acceptedTerms;
+    private Boolean shouldSendPDF;
     private Map<String, Object> browserInfo;
     private List<OrderRequest> orders;
     private OrderSummary orderSummary;
@@ -24,7 +25,7 @@ public class InvoiceRequest {
         return buyerName;
     }
 
-    public void setBuyerName(String buyerName) {
+    public void setBuyerName(final String buyerName) {
         this.buyerName = buyerName;
     }
 
@@ -32,7 +33,7 @@ public class InvoiceRequest {
         return buyerAddressEmail;
     }
 
-    public void setBuyerAddressEmail(String buyerAddressEmail) {
+    public void setBuyerAddressEmail(final String buyerAddressEmail) {
         this.buyerAddressEmail = buyerAddressEmail;
     }
 
@@ -40,7 +41,7 @@ public class InvoiceRequest {
         return buyerAddress;
     }
 
-    public void setBuyerAddress(String buyerAddress) {
+    public void setBuyerAddress(final String buyerAddress) {
         this.buyerAddress = buyerAddress;
     }
 
@@ -48,7 +49,7 @@ public class InvoiceRequest {
         return buyerNip;
     }
 
-    public void setBuyerNip(String buyerNip) {
+    public void setBuyerNip(final String buyerNip) {
         this.buyerNip = buyerNip;
     }
 
@@ -56,7 +57,7 @@ public class InvoiceRequest {
         return buyerPhone;
     }
 
-    public void setBuyerPhone(String buyerPhone) {
+    public void setBuyerPhone(final String buyerPhone) {
         this.buyerPhone = buyerPhone;
     }
 
@@ -64,8 +65,16 @@ public class InvoiceRequest {
         return acceptedTerms;
     }
 
-    public void setAcceptedTerms(Boolean acceptedTerms) {
+    public void setAcceptedTerms(final Boolean acceptedTerms) {
         this.acceptedTerms = acceptedTerms;
+    }
+
+    public Boolean getShouldSendPDF() {
+        return shouldSendPDF;
+    }
+
+    public void setShouldSendPDF(final Boolean shouldSendPDF) {
+        this.shouldSendPDF = shouldSendPDF;
     }
 
     public Map<String, Object> getBrowserInfo() {
@@ -76,7 +85,7 @@ public class InvoiceRequest {
         return orders;
     }
 
-    public void setOrders(List<OrderRequest> orders) {
+    public void setOrders(final List<OrderRequest> orders) {
         this.orders = orders;
     }
 

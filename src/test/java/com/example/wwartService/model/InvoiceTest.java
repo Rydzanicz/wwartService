@@ -33,6 +33,7 @@ public class InvoiceTest {
                                             buyerPhone,
                                             ordersDate,
                                             false,
+                                            false,
                                             orders);
 
         //then
@@ -66,6 +67,7 @@ public class InvoiceTest {
                         buyerPhone,
                         ordersDate,
                         false,
+                        false,
                         orders);
         });
         assertEquals("Invoice ID cannot be 0 or less than 0.", thrown.getMessage());
@@ -93,6 +95,7 @@ public class InvoiceTest {
                                        buyerPhone,
                                        ordersDate,
                                        false,
+                                       false,
                                        orders),
                      "Name cannot be null or empty.");
     }
@@ -118,6 +121,7 @@ public class InvoiceTest {
                                        null,
                                        buyerPhone,
                                        ordersDate,
+                                       false,
                                        false,
                                        orders),
                      "Name cannot be null or empty.");
@@ -145,6 +149,7 @@ public class InvoiceTest {
                                        buyerPhone,
                                        ordersDate,
                                        false,
+                                       false,
                                        orders),
                      "Email cannot be null or empty.");
     }
@@ -171,6 +176,7 @@ public class InvoiceTest {
                                        buyerPhone,
                                        "",
                                        false,
+                                       false,
                                        orders),
                      "List of Order cannot be null or empty.");
     }
@@ -196,6 +202,7 @@ public class InvoiceTest {
                                        null,
                                        buyerPhone,
                                        ordersDate,
+                                       false,
                                        false,
                                        orders),
                      "List of Order cannot be null or empty.");
@@ -321,6 +328,7 @@ public class InvoiceTest {
                                             null,
                                             buyerPhone,
                                             ordersDate,
+                                            false,
                                             false,
                                             orders);
 

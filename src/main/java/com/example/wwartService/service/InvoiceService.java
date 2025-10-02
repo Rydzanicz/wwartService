@@ -66,6 +66,7 @@ public class InvoiceService {
                            entity.getPhone(),
                            entity.getOrderDate(),
                            entity.isEmailSend(),
+                           entity.isShouldSendPDF(),
                            entity.getOrders().stream().map(Order::new).toList());
     }
 

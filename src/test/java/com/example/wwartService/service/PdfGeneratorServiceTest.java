@@ -4,6 +4,7 @@ import com.example.wwartService.model.Invoice;
 import com.example.wwartService.model.Order;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
@@ -15,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 public class PdfGeneratorServiceTest {
@@ -33,7 +33,7 @@ public class PdfGeneratorServiceTest {
         final ArrayList<Order> orders = new ArrayList<>();
         orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, orders);
+        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
         final PdfGeneratorService pdfGeneratorService = Mockito.spy(PdfGeneratorService.class);
 
         //when
@@ -50,9 +50,15 @@ public class PdfGeneratorServiceTest {
         orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
         //when
 
-        final double sumNet = orders.stream().mapToDouble(p -> p.getPrice() * p.getQuantity()).sum();
-        final double sumVat = orders.stream().mapToDouble(p -> (p.getVAT()) * p.getQuantity()).sum();
-        final double sumBrut = orders.stream().mapToDouble(p -> p.getPriceWithVAT() * p.getQuantity()).sum();
+        final double sumNet = orders.stream()
+                                    .mapToDouble(p -> p.getPrice() * p.getQuantity())
+                                    .sum();
+        final double sumVat = orders.stream()
+                                    .mapToDouble(p -> (p.getVAT()) * p.getQuantity())
+                                    .sum();
+        final double sumBrut = orders.stream()
+                                     .mapToDouble(p -> p.getPriceWithVAT() * p.getQuantity())
+                                     .sum();
         //then
         assertEquals(129.03225806451613, sumNet);
         assertEquals(70.96774193548387, sumVat);
@@ -71,15 +77,19 @@ public class PdfGeneratorServiceTest {
         orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
         final String buyerPhone = "987654321";
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, orders);
+        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
 
         final PdfGeneratorService pdfGeneratorService = new PdfGeneratorService();
         final ByteArrayOutputStream pdfOutput = pdfGeneratorService.generateInvoicePdf(invoice);
 
 
         //when
-        final double sumNet = orders.stream().mapToDouble(p -> p.getPrice() * p.getQuantity()).sum();
-        final double sumBrut = orders.stream().mapToDouble(p -> p.getPriceWithVAT() * p.getQuantity()).sum();
+        final double sumNet = orders.stream()
+                                    .mapToDouble(p -> p.getPrice() * p.getQuantity())
+                                    .sum();
+        final double sumBrut = orders.stream()
+                                     .mapToDouble(p -> p.getPriceWithVAT() * p.getQuantity())
+                                     .sum();
 
         //then
         assertNotNull(pdfOutput);
@@ -102,7 +112,7 @@ public class PdfGeneratorServiceTest {
         }
         final String buyerPhone = "987654321";
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, orders);
+        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
 
         final PdfGeneratorService pdfGeneratorService = new PdfGeneratorService();
 
@@ -125,7 +135,7 @@ public class PdfGeneratorServiceTest {
         orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
         final String buyerPhone = "987654321";
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, orders);
+        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
 
         final PdfGeneratorService pdfGeneratorService = new PdfGeneratorService();
 
@@ -135,7 +145,10 @@ public class PdfGeneratorServiceTest {
         //then
         assertNotNull(pdfOutput);
         assertTrue(pdfOutput.size() > 0);
-        assertEquals(70.96774193548387, orders.stream().mapToDouble(p -> (p.getPriceWithVAT() - p.getPrice()) * p.getQuantity()).sum());
+        assertEquals(70.96774193548387,
+                     orders.stream()
+                           .mapToDouble(p -> (p.getPriceWithVAT() - p.getPrice()) * p.getQuantity())
+                           .sum());
     }
 
     @Test
@@ -150,7 +163,7 @@ public class PdfGeneratorServiceTest {
         final String buyerPhone = "987654321";
 
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, orders),
+                     () -> new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders),
                      "List of Order cannot be null or empty.");
     }
 }

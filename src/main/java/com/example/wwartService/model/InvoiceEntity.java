@@ -16,6 +16,15 @@ import java.util.List;
 @Table(name = "invoices")
 public class InvoiceEntity {
 
+    @Column(name = "phone")
+    private final String phone;
+
+    @Column(name = "is_email_send", nullable = false)
+    private final boolean isEmailSend;
+
+    @Column(name = "should_send_pdf", nullable = false)
+    private final boolean shouldSendPDF;
+
     @Id
     @Column(name = "invoice_id", nullable = false)
     private String invoiceId;
@@ -32,14 +41,8 @@ public class InvoiceEntity {
     @Column(name = "nip")
     private String nip;
 
-    @Column(name = "phone")
-    private final String phone;
-
     @Column(name = "order_date", nullable = false)
     private String orderDate;
-
-    @Column(name = "is_email_send", nullable = false)
-    private final boolean isEmailSend;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderEntity> orders;
@@ -53,6 +56,7 @@ public class InvoiceEntity {
         this.phone = null;
         this.orderDate = null;
         this.isEmailSend = false;
+        this.shouldSendPDF = false;
         this.orders = new ArrayList<>();
     }
 
@@ -66,6 +70,7 @@ public class InvoiceEntity {
         this.orderDate = invoice.getOrderDate()
                                 .format(invoice.getFormatter());
         this.isEmailSend = invoice.isEmailSend();
+        this.shouldSendPDF = invoice.isShouldSendPDF();
         this.orders = invoice.getOrder()
                              .stream()
                              .map(OrderEntity::new)
@@ -108,6 +113,10 @@ public class InvoiceEntity {
         return nip;
     }
 
+    public void setNip(String nip) {
+        this.nip = nip;
+    }
+
     public String getPhone() {
         return phone;
     }
@@ -124,8 +133,8 @@ public class InvoiceEntity {
         return isEmailSend;
     }
 
-    public void setNip(String nip) {
-        this.nip = nip;
+    public boolean isShouldSendPDF() {
+        return shouldSendPDF;
     }
 
     public List<OrderEntity> getOrders() {

@@ -1,7 +1,6 @@
 package com.example.wwartService.model;
 
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +8,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Invoice {
-    private static final String INVOICE_ID_PATTERN = "^FV/(\\d{1,9})/(\\d{4})$";
-    private static final String FORMAT = "FV/%09d/%s";
+    private static final String INVOICE_ID_PATTERN = "^FV/(\\d{4})/(\\d{2})/(\\d{4})$";
+    private static final String FORMAT = "FV/%04d/%02d/%d";
+
     private final String buyerName;
     private final String buyerAddress;
     private final String buyerAddressEmail;
@@ -50,7 +50,7 @@ public class Invoice {
             throw new IllegalArgumentException("List of Order cannot be null or empty.");
         }
 
-        this.invoiceId = generateInvoiceId(invoiceNR);
+        this.invoiceId = generateInvoiceId(invoiceNR, orderDate);
         this.buyerName = buyerName;
         this.buyerAddress = buyerAddress;
         this.buyerAddressEmail = buyerAddressEmail;
@@ -89,7 +89,7 @@ public class Invoice {
             throw new IllegalArgumentException("List of Order cannot be null or empty.");
         }
 
-        this.invoiceId = generateInvoiceId(invoiceNR);
+        this.invoiceId = generateInvoiceId(invoiceNR, LocalDateTime.parse(orderDate, formatter));
         this.buyerName = buyerName;
         this.buyerAddress = buyerAddress;
         this.buyerAddressEmail = buyerAddressEmail;
@@ -101,7 +101,7 @@ public class Invoice {
     }
 
     public Invoice() {
-        this.invoiceId = generateInvoiceId(1);
+        this.invoiceId = generateInvoiceId(1, LocalDateTime.now());
         this.buyerName = null;
         this.buyerAddress = null;
         this.buyerAddressEmail = null;
@@ -129,22 +129,24 @@ public class Invoice {
                             .toList();
     }
 
-    public static String generateInvoiceId(int invoiceNumber) {
+    public static String generateInvoiceId(final int invoiceNumber, final LocalDateTime orderDate) {
         if (invoiceNumber <= 0) {
             throw new IllegalArgumentException("Invoice ID cannot be 0 or less than 0.");
         }
-        final String year = String.valueOf(Year.now()
-                                               .getValue());
-        return String.format(FORMAT, invoiceNumber, year);
+        final int month = orderDate.getMonthValue();
+        final int year = orderDate.getYear();
+
+        return String.format(FORMAT, invoiceNumber, month, year);
     }
 
-    public static boolean validateInvoiceId(String invoiceId) {
+    public static boolean validateInvoiceId(final String invoiceId) {
         if (invoiceId == null || invoiceId.isEmpty()) {
             throw new IllegalArgumentException("InvoiceId cannot be null.");
         }
 
         if (!Pattern.matches(INVOICE_ID_PATTERN, invoiceId)) {
-            throw new IllegalArgumentException("Invalid Invoice ID format. Correct format: FV/{number}/{year}, e.g., FV/001/2024");
+            throw new IllegalArgumentException(
+                    "Invalid Invoice ID format. Correct format: FV/{number}/{month}/{year}, e.g., FV/0001/01/2024");
         }
         return true;
     }
@@ -156,7 +158,8 @@ public class Invoice {
         if (matcher.matches()) {
             return Integer.parseInt(matcher.group(1));
         } else {
-            throw new IllegalArgumentException("Invalid Invoice ID format. Cannot extract invoice number.");
+            throw new IllegalArgumentException(
+                    "Invalid Invoice ID format. Cannot extract invoice number.");
         }
     }
 

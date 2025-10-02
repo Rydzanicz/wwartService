@@ -74,11 +74,6 @@ public class InvoiceControllerTest {
                                                         200.0,
                                                         400.0,
                                                         null,
-                                                        null,
-                                                        null,
-                                                        null,
-                                                        null,
-                                                        false,
                                                         null)));
         validRequest.setAcceptedTerms(true);
 
@@ -99,7 +94,8 @@ public class InvoiceControllerTest {
 
         // then
         assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getBody().startsWith("Invoice saved successfully"));
+        assertTrue(response.getBody()
+                           .startsWith("Invoice saved successfully"));
         verify(invoiceService, times(1)).getLastInvoices();
         verify(invoiceService, times(1)).saveInvoiceWithOrders(any(Invoice.class), anyList());
     }
@@ -110,9 +106,11 @@ public class InvoiceControllerTest {
         // given
         // when
 
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            invoiceController.saveInvoice(null);
-        });
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                                                                () -> {
+                                                                    invoiceController.saveInvoice(
+                                                                            null);
+                                                                });
 
         // then
         assertEquals("Invalid request payload", exception.getMessage());
@@ -126,9 +124,11 @@ public class InvoiceControllerTest {
         invalidRequest.setOrders(Collections.emptyList());
 
         // when
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            invoiceController.saveInvoice(invalidRequest);
-        });
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                                                                () -> {
+                                                                    invoiceController.saveInvoice(
+                                                                            invalidRequest);
+                                                                });
 
         // then
         assertEquals("Invalid request payload", exception.getMessage());
@@ -143,9 +143,11 @@ public class InvoiceControllerTest {
         invalidRequest.setBuyerAddressEmail("buyer@example.com");
 
         // when
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            invoiceController.saveInvoice(invalidRequest);
-        });
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                                                                () -> {
+                                                                    invoiceController.saveInvoice(
+                                                                            invalidRequest);
+                                                                });
 
         // then
         assertEquals("Invalid request payload", exception.getMessage());
@@ -167,12 +169,7 @@ public class InvoiceControllerTest {
                                                                           120.0,
                                                                           100.0,
                                                                           "M",
-                                                                          "Czerwony",
-                                                                          "OKRAGLA",
-                                                                          "LUX",
-                                                                          "BACK",
-                                                                          true,
-                                                                          "0.15")));
+                                                                          "Czerwony")));
         validRequest.setAcceptedTerms(true);
 
         when(invoiceService.getLastInvoices()).thenThrow(new RuntimeException("Database error"));
@@ -182,7 +179,8 @@ public class InvoiceControllerTest {
 
         // then
         assertEquals(500, response.getStatusCodeValue());
-        assertTrue(response.getBody().startsWith("Error saving invoice"));
+        assertTrue(response.getBody()
+                           .startsWith("Error saving invoice"));
     }
 
 
@@ -236,16 +234,20 @@ public class InvoiceControllerTest {
                                             ordersDate,
                                             false,
                                             orders);
-        when(invoiceService.getInvoicesByInvoiceId("FV/001/2025")).thenReturn(invoice);
+        when(invoiceService.getInvoicesByInvoiceId("FV/0001/01/2025")).thenReturn(invoice);
 
         // when
-        final ResponseEntity<List<Invoice>> response = invoiceController.getInvoices("FV/001/2025", null);
+        final ResponseEntity<List<Invoice>> response = invoiceController.getInvoices(
+                "FV/0001/01/2025",
+                null);
 
         // then
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals(1, response.getBody().size());
-        verify(invoiceService, times(1)).getInvoicesByInvoiceId("FV/001/2025");
+        assertEquals(1,
+                     response.getBody()
+                             .size());
+        verify(invoiceService, times(1)).getInvoicesByInvoiceId("FV/0001/01/2025");
     }
 
     @Test
@@ -265,12 +267,15 @@ public class InvoiceControllerTest {
         // given
         final String invoiceId = "NON_EXISTENT";
 
-        when(invoiceService.getInvoicesByInvoiceId(anyString())).thenThrow(new IllegalArgumentException("Invoice not found"));
+        when(invoiceService.getInvoicesByInvoiceId(anyString())).thenThrow(new IllegalArgumentException(
+                "Invoice not found"));
 
         // when
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            invoiceController.generateInvoice(invoiceId);
-        });
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                                                                () -> {
+                                                                    invoiceController.generateInvoice(
+                                                                            invoiceId);
+                                                                });
 
         // then
         assertEquals("Invoice not found", exception.getMessage());
@@ -292,15 +297,19 @@ public class InvoiceControllerTest {
                                  ordersDate,
                                  false,
                                  orders));
-        when(invoiceService.getInvoicesByAddressEmail("jan.kowalski@example.com")).thenReturn(invoices);
+        when(invoiceService.getInvoicesByAddressEmail("jan.kowalski@example.com")).thenReturn(
+                invoices);
 
         // when
-        final ResponseEntity<List<Invoice>> response = invoiceController.getInvoices(null, "jan.kowalski@example.com");
+        final ResponseEntity<List<Invoice>> response = invoiceController.getInvoices(null,
+                                                                                     "jan.kowalski@example.com");
 
         // then
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals(1, response.getBody().size());
+        assertEquals(1,
+                     response.getBody()
+                             .size());
         verify(invoiceService, times(1)).getInvoicesByAddressEmail("jan.kowalski@example.com");
     }
 
@@ -321,7 +330,15 @@ public class InvoiceControllerTest {
                                  ordersDate,
                                  false,
                                  orders));
-        invoices.add(new Invoice(2, "Anna Nowak", "Kwiatowa 12", "anna.nowak@example.com", null, "123456789", ordersDate, false, orders));
+        invoices.add(new Invoice(2,
+                                 "Anna Nowak",
+                                 "Kwiatowa 12",
+                                 "anna.nowak@example.com",
+                                 null,
+                                 "123456789",
+                                 ordersDate,
+                                 false,
+                                 orders));
         when(invoiceService.getAllInvoices()).thenReturn(invoices);
 
         // when
@@ -330,7 +347,9 @@ public class InvoiceControllerTest {
         // then
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals(2, response.getBody().size());
+        assertEquals(2,
+                     response.getBody()
+                             .size());
         verify(invoiceService, times(1)).getAllInvoices();
     }
 
@@ -346,14 +365,17 @@ public class InvoiceControllerTest {
         // then
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals(2, response.getBody().size());
+        assertEquals(2,
+                     response.getBody()
+                             .size());
         verify(invoiceService, times(1)).getUniqueEmail();
     }
 
     @Test
     public void testGetUniqueEmailError() {
         // given
-        doThrow(new RuntimeException("Database error")).when(invoiceService).getUniqueEmail();
+        doThrow(new RuntimeException("Database error")).when(invoiceService)
+                                                       .getUniqueEmail();
 
         // when
         ResponseEntity<List<String>> response = invoiceController.getUniqueEmail();
@@ -381,7 +403,8 @@ public class InvoiceControllerTest {
     @Test
     public void testGetAllInvoicesError() {
         // given
-        doThrow(new RuntimeException("Database error")).when(invoiceService).getAllInvoices();
+        doThrow(new RuntimeException("Database error")).when(invoiceService)
+                                                       .getAllInvoices();
 
         // when
         ResponseEntity<List<Invoice>> response = invoiceController.getInvoices(null, null);

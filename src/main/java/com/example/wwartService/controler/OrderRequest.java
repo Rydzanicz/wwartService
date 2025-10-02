@@ -11,11 +11,6 @@ public class OrderRequest {
     private Double itemTotal;
     private String size;
     private String color;
-    private String tagShape;
-    private String frontText;
-    private String backText;
-    private Boolean hasPersonalization;
-    private String weight;
 
     public OrderRequest() {}
 
@@ -28,12 +23,7 @@ public class OrderRequest {
                         final Double originalPrice,
                         final Double itemTotal,
                         final String size,
-                        final String color,
-                        final String tagShape,
-                        final String frontText,
-                        final String backText,
-                        final Boolean hasPersonalization,
-                        final String weight) {
+                        final String color) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -44,11 +34,6 @@ public class OrderRequest {
         this.itemTotal = itemTotal;
         this.size = size;
         this.color = color;
-        this.tagShape = tagShape;
-        this.frontText = frontText;
-        this.backText = backText;
-        this.hasPersonalization = hasPersonalization;
-        this.weight = weight;
     }
 
     public Long getId() {
@@ -89,25 +74,5 @@ public class OrderRequest {
 
     public String getColor() {
         return color;
-    }
-
-    public String getTagShape() {
-        return tagShape;
-    }
-
-    public String getFrontText() {
-        return frontText;
-    }
-
-    public String getBackText() {
-        return backText;
-    }
-
-    public Boolean getHasPersonalization() {
-        return hasPersonalization;
-    }
-
-    public String getWeight() {
-        return weight;
     }
 }

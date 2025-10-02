@@ -34,11 +34,11 @@ public class PdfGeneratorService {
     private static final String FONT_PATH = "fonts/arial.ttf";
     private static final String LOGO_PATH = "images/Logo.png";
 
-    final static private String SELLER_FIRMA_NAME = "Viggo-Programer";
-    final static private String SELLER_NAME = "Michał Rydzanicz";
-    final static private String SELLER_Address = "Chełm 5, 59-305 Rudna";
-    final static private String SELLER_NR = "785640173";
-    final static private String SELLER_NIP = "6574654654654";
+    final static private String SELLER_FIRMA_NAME = "Weronika Wołoszyn ART";
+    final static private String SELLER_NAME = "Weronika Wołoszyn";
+    final static private String SELLER_Address = "Matki Bożej Fatimskiej 63/43, 33-100 Tarnów";
+    final static private String SELLER_NR = "573 847 579";
+    final static private String SELLER_NIP = "";
     final static private DecimalFormat df = new DecimalFormat("#.00");
 
     public ByteArrayOutputStream generateInvoicePdf(final Invoice invoice) throws IOException {
@@ -58,17 +58,39 @@ public class PdfGeneratorService {
         document.setFontSize(9);
         document.setMargins(50, 50, 50, 50);
 
-        document.showTextAligned(new Paragraph("Faktura VAT nr: " + invoice.getInvoiceId()), 50, 800, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph("_______________________________________________________________________________________________"), 50, 790, TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("Faktura VAT nr: " + invoice.getInvoiceId()),
+                                 50,
+                                 800,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph(
+                                         "_______________________________________________________________________________________________"),
+                                 50,
+                                 790,
+                                 TextAlignment.LEFT);
 
-        document.showTextAligned(new Paragraph("Faktura VAT nr: " + invoice.getInvoiceId()), 320, 760, TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("Faktura VAT nr: " + invoice.getInvoiceId()),
+                                 320,
+                                 760,
+                                 TextAlignment.LEFT);
         document.showTextAligned(new Paragraph("Data wystawienia: " +
                                                invoice.getOrderDate()
-                                                      .format(formatter)), 320, 740, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph("Data sprzedaży: " + NOW), 320, 720, TextAlignment.LEFT);
+                                                      .format(formatter)),
+                                 320,
+                                 740,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("Data sprzedaży: " + NOW),
+                                 320,
+                                 720,
+                                 TextAlignment.LEFT);
 
-        document.showTextAligned(new Paragraph("________________________________________"), 50, 700, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph("________________________________________"), 50, 690, TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("________________________________________"),
+                                 50,
+                                 700,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("________________________________________"),
+                                 50,
+                                 690,
+                                 TextAlignment.LEFT);
 
 
         final InputStream logoStream = getClass().getClassLoader()
@@ -88,17 +110,38 @@ public class PdfGeneratorService {
         document.showTextAligned(new Paragraph(SELLER_NR), 50, 630, TextAlignment.LEFT);
         document.showTextAligned(new Paragraph("NIP " + SELLER_NIP), 50, 610, TextAlignment.LEFT);
 
-        document.showTextAligned(new Paragraph("________________________________________"), 320, 700, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph("________________________________________"), 320, 690, TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("________________________________________"),
+                                 320,
+                                 700,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("________________________________________"),
+                                 320,
+                                 690,
+                                 TextAlignment.LEFT);
         document.showTextAligned(new Paragraph("NABYWCA"), 320, 690, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph(invoice.getBuyerName()), 320, 670, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph(invoice.getBuyerAddress()), 320, 650, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph(invoice.getBuyerAddressEmail()), 320, 630, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph(invoice.getBuyerPhone()), 320, 610, TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph(invoice.getBuyerName()),
+                                 320,
+                                 670,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph(invoice.getBuyerAddress()),
+                                 320,
+                                 650,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph(invoice.getBuyerAddressEmail()),
+                                 320,
+                                 630,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph(invoice.getBuyerPhone()),
+                                 320,
+                                 610,
+                                 TextAlignment.LEFT);
 
         if (!invoice.getBuyerNIP()
                     .isEmpty()) {
-            document.showTextAligned(new Paragraph("NIP " + invoice.getBuyerNIP()), 320, 590, TextAlignment.LEFT);
+            document.showTextAligned(new Paragraph("NIP " + invoice.getBuyerNIP()),
+                                     320,
+                                     590,
+                                     TextAlignment.LEFT);
         }
         document.add(new Paragraph("\n").setMarginTop(200));
 
@@ -172,11 +215,21 @@ public class PdfGeneratorService {
                     .setTextAlignment(TextAlignment.RIGHT);
         document.add(summaryTable);
 
-        document.showTextAligned(new Paragraph("________________________________________"), 50, 80, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph("Osoba upoważniona do odbioru faktury\n"), 50, 50, TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("________________________________________"),
+                                 50,
+                                 80,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("Osoba upoważniona do odbioru faktury\n"),
+                                 50,
+                                 50,
+                                 TextAlignment.LEFT);
 
-        document.showTextAligned(new Paragraph("________________________________________"), 320, 80, TextAlignment.LEFT);
-        document.showTextAligned(new Paragraph("Osoba upoważniona do wystawienia faktury\n" + SELLER_NAME), 320, 50, TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("________________________________________"),
+                                 320,
+                                 80,
+                                 TextAlignment.LEFT);
+        document.showTextAligned(new Paragraph("Osoba upoważniona do wystawienia faktury\n" +
+                                               SELLER_NAME), 320, 50, TextAlignment.LEFT);
 
         document.close();
 
@@ -190,7 +243,9 @@ public class PdfGeneratorService {
                 throw new IOException("Font resource not found");
             }
             final FontProgram fontProgram = FontProgramFactory.createFont(fontStream.readAllBytes());
-            final PdfFont font = PdfFontFactory.createFont(fontProgram, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
+            final PdfFont font = PdfFontFactory.createFont(fontProgram,
+                                                           PdfEncodings.IDENTITY_H,
+                                                           PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
             return font;
         }
     }

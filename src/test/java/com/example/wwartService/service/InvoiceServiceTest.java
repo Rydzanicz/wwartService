@@ -27,11 +27,10 @@ import static org.mockito.Mockito.when;
 
 public class InvoiceServiceTest {
 
+    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Mock
     private InvoiceRepository invoiceRepository;
-
     private InvoiceService invoiceService;
-    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @BeforeEach
     public void setUp() {
@@ -105,7 +104,7 @@ public class InvoiceServiceTest {
         // given
         final List<Order> orders = new ArrayList<>();
         orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
-        final String invoiceId = "FV/000000001/2025";
+        final String invoiceId = "FV/0001/01/2025";
         final LocalDateTime ordersDate = LocalDateTime.parse("2025-01-01 14:30:00", formatter);
         final String buyerPhone = "987654321";
         final InvoiceEntity entities = new InvoiceEntity(new Invoice(1,
@@ -124,7 +123,7 @@ public class InvoiceServiceTest {
 
         // then
         assertNotNull(invoices);
-        assertEquals("FV/000000001/2025", invoices.getInvoiceId());
+        assertEquals("FV/0001/01/2025", invoices.getInvoiceId());
         verify(invoiceRepository, times(1)).findInvoicesByInvoiceId(invoiceId);
     }
 
@@ -135,15 +134,16 @@ public class InvoiceServiceTest {
         orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "987654321";
-        final Optional<InvoiceEntity> lastInvoiceEntity = Optional.of(new InvoiceEntity(new Invoice(5,
-                                                                                                    "Anna Nowak",
-                                                                                                    "Kwiatowa 12",
-                                                                                                    "anna.nowak@example.com",
-                                                                                                    null,
-                                                                                                    buyerPhone,
-                                                                                                    ordersDate,
-                                                                                                    false,
-                                                                                                    orders)));
+        final Optional<InvoiceEntity> lastInvoiceEntity = Optional.of(new InvoiceEntity(new Invoice(
+                5,
+                "Anna Nowak",
+                "Kwiatowa 12",
+                "anna.nowak@example.com",
+                null,
+                buyerPhone,
+                ordersDate,
+                false,
+                orders)));
         when(invoiceRepository.getLastInvoices()).thenReturn(lastInvoiceEntity);
 
         // when
@@ -151,7 +151,7 @@ public class InvoiceServiceTest {
 
         // then
         assertNotNull(lastInvoice);
-        assertEquals("FV/000000005/2025", lastInvoice.getInvoiceId());
+        assertEquals("FV/0005/01/2024", lastInvoice.getInvoiceId());
         assertEquals("Anna Nowak", lastInvoice.getBuyerName());
         assertEquals("Kwiatowa 12", lastInvoice.getBuyerAddress());
         assertEquals("anna.nowak@example.com", lastInvoice.getBuyerAddressEmail());
@@ -220,7 +220,8 @@ public class InvoiceServiceTest {
         // given
         // when
         // then
-        assertThrows(IllegalArgumentException.class, () -> invoiceService.saveInvoiceWithOrders(null, null));
+        assertThrows(IllegalArgumentException.class,
+                     () -> invoiceService.saveInvoiceWithOrders(null, null));
     }
 
     @Test
@@ -256,7 +257,8 @@ public class InvoiceServiceTest {
         final boolean status = true;
 
         doThrow(new IllegalArgumentException("Invoice not found")).when(invoiceRepository)
-                                                                  .updateEmailSendStatus(invoiceId, status);
+                                                                  .updateEmailSendStatus(invoiceId,
+                                                                                         status);
 
         // When / Then
         assertThrows(IllegalArgumentException.class, () -> {

@@ -37,7 +37,7 @@ public class InvoiceTest {
 
         //then
         assertNotNull(invoice);
-        assertEquals("FV/000000001/2025", invoice.getInvoiceId());
+        assertEquals("FV/0001/01/2025", invoice.getInvoiceId());
         assertEquals("Jan Kowalski", invoice.getBuyerName());
         assertEquals("popowicka 68", invoice.getBuyerAddress());
         assertEquals("jan.kowalski@example.com", invoice.getBuyerAddressEmail());
@@ -58,7 +58,15 @@ public class InvoiceTest {
         //when
         //then
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            new Invoice(invoiceNumber, buyerName, buyerAddress, buyerEmail, null, buyerPhone, ordersDate, false, orders);
+            new Invoice(invoiceNumber,
+                        buyerName,
+                        buyerAddress,
+                        buyerEmail,
+                        null,
+                        buyerPhone,
+                        ordersDate,
+                        false,
+                        orders);
         });
         assertEquals("Invoice ID cannot be 0 or less than 0.", thrown.getMessage());
     }
@@ -77,7 +85,15 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber, null, buyerAddress, buyerEmail, null, buyerPhone, ordersDate, false, orders),
+                     () -> new Invoice(invoiceNumber,
+                                       null,
+                                       buyerAddress,
+                                       buyerEmail,
+                                       null,
+                                       buyerPhone,
+                                       ordersDate,
+                                       false,
+                                       orders),
                      "Name cannot be null or empty.");
     }
 
@@ -95,7 +111,15 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber, buyerName, null, buyerEmail, null, buyerPhone, ordersDate, false, orders),
+                     () -> new Invoice(invoiceNumber,
+                                       buyerName,
+                                       null,
+                                       buyerEmail,
+                                       null,
+                                       buyerPhone,
+                                       ordersDate,
+                                       false,
+                                       orders),
                      "Name cannot be null or empty.");
     }
 
@@ -113,7 +137,15 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber, buyerName, buyerAddress, null, null, buyerPhone, ordersDate, false, orders),
+                     () -> new Invoice(invoiceNumber,
+                                       buyerName,
+                                       buyerAddress,
+                                       null,
+                                       null,
+                                       buyerPhone,
+                                       ordersDate,
+                                       false,
+                                       orders),
                      "Email cannot be null or empty.");
     }
 
@@ -131,7 +163,15 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber, buyerName, buyerAddress, buyerEmail, null, buyerPhone, "", false, orders),
+                     () -> new Invoice(invoiceNumber,
+                                       buyerName,
+                                       buyerAddress,
+                                       buyerEmail,
+                                       null,
+                                       buyerPhone,
+                                       "",
+                                       false,
+                                       orders),
                      "List of Order cannot be null or empty.");
     }
 
@@ -149,7 +189,15 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber, buyerName, buyerAddress, buyerEmail, null, buyerPhone, ordersDate, false, orders),
+                     () -> new Invoice(invoiceNumber,
+                                       buyerName,
+                                       buyerAddress,
+                                       buyerEmail,
+                                       null,
+                                       buyerPhone,
+                                       ordersDate,
+                                       false,
+                                       orders),
                      "List of Order cannot be null or empty.");
     }
 
@@ -158,7 +206,9 @@ public class InvoiceTest {
         //given
         //when
         //then
-        assertThrows(IllegalArgumentException.class, () -> new Order(null, "Opis A", 1, 100.0), "Name cannot be null or empty.");
+        assertThrows(IllegalArgumentException.class,
+                     () -> new Order(null, "Opis A", 1, 100.0),
+                     "Name cannot be null or empty.");
     }
 
     @Test
@@ -166,7 +216,9 @@ public class InvoiceTest {
         //given
         //when
         //then
-        assertThrows(IllegalArgumentException.class, () -> new Order("Name", null, 1, 100.0), "Description cannot be null or empty.");
+        assertThrows(IllegalArgumentException.class,
+                     () -> new Order("Name", null, 1, 100.0),
+                     "Description cannot be null or empty.");
     }
 
     @Test
@@ -174,7 +226,9 @@ public class InvoiceTest {
         //given
         //when
         //then
-        assertThrows(IllegalArgumentException.class, () -> new Order("Name", "Opis A", 0, 100.0), "Quantity cannot be zero.");
+        assertThrows(IllegalArgumentException.class,
+                     () -> new Order("Name", "Opis A", 0, 100.0),
+                     "Quantity cannot be zero.");
     }
 
     @Test
@@ -182,7 +236,9 @@ public class InvoiceTest {
         //given
         //when
         //then
-        assertThrows(IllegalArgumentException.class, () -> new Order("Name", "Opis A", 1, 0.0), "Price cannot be zero.");
+        assertThrows(IllegalArgumentException.class,
+                     () -> new Order("Name", "Opis A", 1, 0.0),
+                     "Price cannot be zero.");
     }
 
     @Test
@@ -190,7 +246,9 @@ public class InvoiceTest {
         //given
         //when
         //then
-        assertThrows(NullPointerException.class, () -> new Invoice(null), "InvoiceEntity cannot be null.");
+        assertThrows(NullPointerException.class,
+                     () -> new Invoice(null),
+                     "InvoiceEntity cannot be null.");
     }
 
     @Test
@@ -203,7 +261,9 @@ public class InvoiceTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             Invoice.validateInvoiceId(invalidInvoiceId);
         });
-        assertEquals("Invalid Invoice ID format. Correct format: FV/{number}/{year}, e.g., FV/001/2024", thrown.getMessage());
+        assertEquals(
+                "Invalid Invoice ID format. Correct format: FV/{number}/{month}/{year}, e.g., FV/0001/01/2024",
+                thrown.getMessage());
     }
 
     @Test
@@ -216,7 +276,9 @@ public class InvoiceTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             Invoice.validateInvoiceId(invalidInvoiceId);
         });
-        assertEquals("Invalid Invoice ID format. Correct format: FV/{number}/{year}, e.g., FV/001/2024", thrown.getMessage());
+        assertEquals(
+                "Invalid Invoice ID format. Correct format: FV/{number}/{month}/{year}, e.g., FV/0001/01/2024",
+                thrown.getMessage());
     }
 
     @Test
@@ -235,10 +297,10 @@ public class InvoiceTest {
     @Test
     void validateInvoiceId_ShouldReturnTrueForValidInvoiceId() {
         // Arrange
-        String validInvoiceId = "FV/001/2024";
+        final String validInvoiceId = "FV/0001/01/2024";
 
         // Act
-        boolean result = Invoice.validateInvoiceId(validInvoiceId);
+        final boolean result = Invoice.validateInvoiceId(validInvoiceId);
 
         // Assert
         assertTrue(result, "The validation should return true for a valid invoice ID.");
@@ -252,7 +314,7 @@ public class InvoiceTest {
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "123123123";
 
-        final Invoice invoice = new Invoice(900000000,
+        final Invoice invoice = new Invoice(9000,
                                             "Jan Kowalski",
                                             "popowicka 68",
                                             "jan.kowalski@example.com",
@@ -266,7 +328,7 @@ public class InvoiceTest {
         int extractedInvoiceNumber = invoice.extractAndIncreaseInvoiceNumber();
 
         // then
-        assertEquals(900000001, extractedInvoiceNumber);
+        assertEquals(9001, extractedInvoiceNumber);
     }
 }
 

@@ -31,7 +31,9 @@ public class InvoiceController {
     private final PdfGeneratorService pdfGeneratorService;
     private final EmailService emailService;
 
-    public InvoiceController(final InvoiceService invoiceService, final PdfGeneratorService pdfGeneratorService, final EmailService emailService) {
+    public InvoiceController(final InvoiceService invoiceService,
+                             final PdfGeneratorService pdfGeneratorService,
+                             final EmailService emailService) {
         this.invoiceService = invoiceService;
         this.pdfGeneratorService = pdfGeneratorService;
         this.emailService = emailService;
@@ -39,73 +41,70 @@ public class InvoiceController {
 
     @PostMapping(value = "/save-invoice", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> saveInvoice(@RequestBody InvoiceRequest invoiceRequest) {
-        if (invoiceRequest == null || invoiceRequest.getBuyerName() == null || invoiceRequest.getOrders() == null) {
+        if (invoiceRequest == null ||
+            invoiceRequest.getBuyerName() == null ||
+            invoiceRequest.getOrders() == null) {
             logger.error("Invalid request data - required fields missing");
             throw new IllegalArgumentException("Invalid request payload");
         }
 
         if (invoiceRequest.getAcceptedTerms() == null || !invoiceRequest.getAcceptedTerms()) {
-            logger.error("Terms and conditions were not accepted by client: {}", invoiceRequest.getBuyerName());
+            logger.error("Terms and conditions were not accepted by client: {}",
+                         invoiceRequest.getBuyerName());
             return ResponseEntity.badRequest()
                                  .body("Terms and conditions have to be accepted");
         }
 
         try {
             final Invoice lastInvoice = invoiceService.getLastInvoices();
-           final List<Order> orders = invoiceRequest.getOrders().stream()
-                                               .map(orderReq -> {
-                                                   StringBuilder description = new StringBuilder();
-                                                   description.append("Kategoria: ").append(orderReq.getCategory()).append("; ");
+            final List<Order> orders = invoiceRequest.getOrders()
+                                                     .stream()
+                                                     .map(orderReq -> {
+                                                         StringBuilder description = new StringBuilder();
+                                                         description.append("Kategoria: ")
+                                                                    .append(orderReq.getCategory())
+                                                                    .append("; ");
 
-                                                   if (orderReq.getSize() != null) {
-                                                       description.append("Rozmiar: ").append(orderReq.getSize()).append("; ");
-                                                   }
-                                                   if (orderReq.getColor() != null) {
-                                                       description.append("Kolor: ").append(orderReq.getColor()).append("; ");
-                                                   }
-                                                   if (orderReq.getTagShape() != null) {
-                                                       description.append("Kształt: ").append(orderReq.getTagShape()).append("; ");
-                                                   }
+                                                         if (orderReq.getSize() != null) {
+                                                             description.append("Rozmiar: ")
+                                                                        .append(orderReq.getSize())
+                                                                        .append("; ");
+                                                         }
+                                                         if (orderReq.getColor() != null) {
+                                                             description.append("Kolor: ")
+                                                                        .append(orderReq.getColor())
+                                                                        .append("; ");
+                                                         }
 
-                                                   if (orderReq.getHasPersonalization() != null && orderReq.getHasPersonalization()) {
-                                                       description.append("PERSONALIZACJA - ");
-                                                       if (orderReq.getFrontText() != null && !orderReq.getFrontText().isEmpty()) {
-                                                           description.append("Przód: '").append(orderReq.getFrontText()).append("'; ");
-                                                       }
-                                                       if (orderReq.getBackText() != null && !orderReq.getBackText().isEmpty()) {
-                                                           description.append("Tył: '").append(orderReq.getBackText()).append("'; ");
-                                                       }
-                                                   }
+                                                         return new Order(orderReq.getName(),
+                                                                          description.toString(),
+                                                                          orderReq.getQuantity(),
+                                                                          orderReq.getPrice());
+                                                     })
+                                                     .collect(Collectors.toList());
 
-                                                   return new Order(
-                                                           orderReq.getName(),
-                                                           description.toString(),
-                                                           orderReq.getQuantity(),
-                                                           orderReq.getPrice()
-                                                   );
-                                               })
-                                               .collect(Collectors.toList());
-
-            final Invoice newInvoice = new Invoice(
-                    lastInvoice.extractAndIncreaseInvoiceNumber(),
-                    invoiceRequest.getBuyerName(),
-                    invoiceRequest.getBuyerAddress(),
-                    invoiceRequest.getBuyerAddressEmail(),
-                    invoiceRequest.getBuyerNip(),
-                    invoiceRequest.getBuyerPhone(),
-                    LocalDateTime.now(),
-                    false,
-                    orders
-            );
+            final Invoice newInvoice = new Invoice(lastInvoice.extractAndIncreaseInvoiceNumber(),
+                                                   invoiceRequest.getBuyerName(),
+                                                   invoiceRequest.getBuyerAddress(),
+                                                   invoiceRequest.getBuyerAddressEmail(),
+                                                   invoiceRequest.getBuyerNip(),
+                                                   invoiceRequest.getBuyerPhone(),
+                                                   LocalDateTime.now(),
+                                                   false,
+                                                   orders);
 
             logger.info("Saving invoice {} for client: {}",
-                        newInvoice.getInvoiceId(), invoiceRequest.getBuyerName());
+                        newInvoice.getInvoiceId(),
+                        invoiceRequest.getBuyerName());
 
             if (invoiceRequest.getOrderSummary() != null) {
                 logger.info("Order statistics - Products: {}, Personalized: {}, Shipping method: {}",
-                            invoiceRequest.getOrderSummary().getUniqueProducts(),
-                            invoiceRequest.getOrderSummary().getHasPersonalizedItems(),
-                            invoiceRequest.getOrderSummary().getShippingMethod());
+                            invoiceRequest.getOrderSummary()
+                                          .getUniqueProducts(),
+                            invoiceRequest.getOrderSummary()
+                                          .getHasPersonalizedItems(),
+                            invoiceRequest.getOrderSummary()
+                                          .getShippingMethod());
             }
 
             if (invoiceRequest.getBrowserInfo() != null) {
@@ -116,7 +115,8 @@ public class InvoiceController {
 
             return ResponseEntity.ok()
                                  .contentType(MediaType.TEXT_PLAIN)
-                                 .body("Invoice saved successfully with ID: " + newInvoice.getInvoiceId());
+                                 .body("Invoice saved successfully with ID: " +
+                                       newInvoice.getInvoiceId());
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -131,7 +131,9 @@ public class InvoiceController {
             throw new IllegalArgumentException("Invalid request payload");
         }
 
-        emailService.sendEmail(mailRequest.getAddressEmail(), mailRequest.getName(), mailRequest.getMessage());
+        emailService.sendEmail(mailRequest.getAddressEmail(),
+                               mailRequest.getName(),
+                               mailRequest.getMessage());
         return ResponseEntity.ok()
                              .build();
     }

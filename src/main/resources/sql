@@ -55,7 +55,7 @@ SELECT * FROM invoices;
 SELECT * FROM orders;
 SELECT * FROM failed_processed_policy;
 
-psql -U viggo -d wwartService_database
+psql -U viggo -d wwartservice_database
 Viggo123Password
 
 

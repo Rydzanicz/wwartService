@@ -69,9 +69,9 @@ public class EmailService {
         try {
             final MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom(EMAIL_FROM);
-            helper.setTo(addressEmail);
+            helper.setTo(MY_EMAIL);
             helper.setSubject(name);
-            helper.setText(emailBody);
+            helper.setText(addressEmail + ": " + emailBody);
 
             mailSender.send(message);
         } catch (Exception e) {

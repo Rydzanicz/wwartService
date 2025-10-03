@@ -6,24 +6,33 @@ import com.example.wwartService.repository.CommentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CommentsServiceTest {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private CommentRepository commentRepository;
     private CommentsService commentsService;
+    private FileStorageService fileStorageService;
 
     @BeforeEach
     void setUp() {
         commentRepository = mock(CommentRepository.class);
-        commentsService = new CommentsService(commentRepository);
+        fileStorageService = mock(FileStorageService.class);
+
+        commentsService = new CommentsService(commentRepository, fileStorageService);
     }
 
     @Test
@@ -32,13 +41,9 @@ public class CommentsServiceTest {
         final String productId = "P01";
         final String createdDateStr = "2024-01-01 14:30:00";
         final LocalDateTime createdDate = LocalDateTime.parse(createdDateStr, formatter);
-        final CommentEntity entity = new CommentEntity(
-                productId,
-                "Jan Kowalski",
-                "Świetny produkt!",
-                5,
-                createdDateStr
-        );
+        final String photoPath = "resources/commentsPhoto";
+
+        final CommentEntity entity = new CommentEntity(productId, "Jan Kowalski", "Świetny produkt!", 5, createdDateStr, photoPath);
 
         // when
         when(commentRepository.findCommentsByProductId(productId)).thenReturn(List.of(entity));
@@ -60,24 +65,36 @@ public class CommentsServiceTest {
     }
 
     @Test
-    public void testSaveCommentCallsRepositorySave() {
+    public void testSaveCommentCallsRepositorySave() throws IOException {
         // given
         final String productId = "P01";
-        final LocalDateTime createdDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
-        final Comment comment = new Comment(productId, "Jan Kowalski", "Świetny produkt!", 5, createdDate);
+        final MockMultipartFile image = new MockMultipartFile("image", "commentsPhoto.jpg", "image/jpeg", "Dummy Image Content".getBytes());
+        final String savedPhotoPath = "comments/photo123.jpg";
+
+        final CommentEntity savedEntityMock = new CommentEntity(productId, "Jan Kowalski", "Świetny produkt!", 5, "2024-01-01 14:30:00",
+                                                                savedPhotoPath);
+        savedEntityMock.setId(1L);
+
+        when(fileStorageService.saveFile(image, "comments")).thenReturn(savedPhotoPath);
+        when(commentRepository.save(org.mockito.ArgumentMatchers.any(CommentEntity.class))).thenReturn(savedEntityMock);
+
+        final Comment comment = new Comment(productId, "Jan Kowalski", "Świetny produkt!", 5, "2024-01-01 14:30:00");
 
         // when
-        commentsService.saveComment(comment);
+        commentsService.saveComment(comment, image);
 
         // then
         ArgumentCaptor<CommentEntity> captor = ArgumentCaptor.forClass(CommentEntity.class);
         verify(commentRepository, times(1)).save(captor.capture());
 
-        final CommentEntity savedEntity = captor.getValue();
-        assertEquals(comment.getProductId(), savedEntity.getProductId());
-        assertEquals(comment.getAuthor(), savedEntity.getAuthor());
-        assertEquals(comment.getText(), savedEntity.getText());
-        assertEquals(comment.getRating(), savedEntity.getRating());
-        assertEquals(comment.getCreatedDate(), LocalDateTime.parse(savedEntity.getCreatedDate(), formatter));
+        final CommentEntity capturedEntity = captor.getValue();
+
+        assertEquals(comment.getProductId(), capturedEntity.getProductId());
+        assertEquals(comment.getAuthor(), capturedEntity.getAuthor());
+        assertEquals(comment.getText(), capturedEntity.getText());
+        assertEquals(comment.getRating(), capturedEntity.getRating());
+        assertEquals(comment.getCreatedDate(), LocalDateTime.parse(capturedEntity.getCreatedDate(), formatter));
+        assertEquals(savedPhotoPath, capturedEntity.getPhotoPath());
     }
+
 }

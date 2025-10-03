@@ -13,6 +13,7 @@ public class Comment {
     private String text;
     private Integer rating;
     private LocalDateTime createdDate;
+    private String photoPath;
 
     public Comment() {
         this.productId = generateProductId(1);
@@ -20,7 +21,55 @@ public class Comment {
         this.text = null;
         this.rating = null;
         this.createdDate = LocalDateTime.now();
+        this.photoPath = null;
+    }
 
+    public Comment(final String productId, final String author, final String text, final Integer rating, final String createdDate, final String photoPath) {
+        if (productId == null || productId.describeConstable().isEmpty()) {
+            throw new IllegalArgumentException("Product id cannot be null or empty.");
+        }
+        if (author == null || author.isEmpty()) {
+            throw new IllegalArgumentException("Author cannot be null or empty.");
+        }
+        if (text == null || text.isEmpty()) {
+            throw new IllegalArgumentException("Text cannot be null or empty.");
+        }
+        if (rating == null || rating.describeConstable().isEmpty()) {
+            throw new IllegalArgumentException("Rating cannot be null or empty.");
+        }
+        if (createdDate == null || createdDate.isEmpty()) {
+            throw new IllegalArgumentException("Created date cannot be null or empty.");
+        }
+        this.productId = productId;
+        this.author = author;
+        this.text = text;
+        this.rating = rating;
+        this.createdDate = LocalDateTime.parse(createdDate, formatter);
+        this.photoPath = photoPath;
+    }
+
+    public Comment(final Integer productId, final String author, final String text, final Integer rating, final LocalDateTime createdDate, final String photoPath) {
+        if (productId == null || productId.describeConstable().isEmpty()) {
+            throw new IllegalArgumentException("Product id cannot be null or empty.");
+        }
+        if (author == null || author.isEmpty()) {
+            throw new IllegalArgumentException("Author cannot be null or empty.");
+        }
+        if (text == null || text.isEmpty()) {
+            throw new IllegalArgumentException("Text cannot be null or empty.");
+        }
+        if (rating == null || rating.describeConstable().isEmpty()) {
+            throw new IllegalArgumentException("Rating cannot be null or empty.");
+        }
+        if (createdDate == null) {
+            throw new IllegalArgumentException("Created date cannot be null or empty.");
+        }
+        this.productId = generateProductId(productId);
+        this.author = author;
+        this.text = text;
+        this.rating = rating;
+        this.createdDate = createdDate;
+        this.photoPath = photoPath;
     }
 
     public Comment(final String productId, final String author, final String text, final Integer rating, final String createdDate) {
@@ -44,10 +93,11 @@ public class Comment {
         this.text = text;
         this.rating = rating;
         this.createdDate = LocalDateTime.parse(createdDate, formatter);
+        this.photoPath = "";
     }
 
-    public Comment(final String productId, final String author, final String text, final Integer rating, final LocalDateTime createdDate) {
-        if (productId == null || productId.describeConstable().isEmpty()) {
+    public Comment(final Integer productId, final String author, final String text, final Integer rating) {
+        if (productId == null || productId == 0) {
             throw new IllegalArgumentException("Product id cannot be null or empty.");
         }
         if (author == null || author.isEmpty()) {
@@ -56,17 +106,15 @@ public class Comment {
         if (text == null || text.isEmpty()) {
             throw new IllegalArgumentException("Text cannot be null or empty.");
         }
-        if (rating == null || rating.describeConstable().isEmpty()) {
+        if (rating == null || rating == 0) {
             throw new IllegalArgumentException("Rating cannot be null or empty.");
         }
-        if (createdDate == null) {
-            throw new IllegalArgumentException("Created date cannot be null or empty.");
-        }
-        this.productId = productId;
+        this.productId = generateProductId(productId);
         this.author = author;
         this.text = text;
         this.rating = rating;
-        this.createdDate = createdDate;
+        this.createdDate = LocalDateTime.now();
+        this.photoPath = "";
     }
 
     public Comment(final CommentEntity comment) {
@@ -77,9 +125,26 @@ public class Comment {
         this.text = comment.getText();
         this.rating = comment.getRating();
         this.createdDate = LocalDateTime.parse(comment.getCreatedDate(), formatter);
+        this.photoPath = comment.getPhotoPath();
     }
 
-    public static String generateProductId(int number) {
+    public static String generateProductId(final String numberStr) {
+        if (numberStr == null || numberStr.isBlank()) {
+            throw new IllegalArgumentException("Product number cannot be null or blank");
+        }
+        try {
+            final int number = Integer.parseInt(numberStr);
+            if (number <= 0) {
+                throw new IllegalArgumentException("Product number must be greater than 0");
+            }
+            return String.format(FORMAT, number);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Product number must be a valid integer", e);
+        }
+    }
+
+
+    public static String generateProductId(final int number) {
         if (number <= 0) {
             throw new IllegalArgumentException("Product number must be greater than 0");
         }
@@ -138,5 +203,13 @@ public class Comment {
 
     public DateTimeFormatter getFormatter() {
         return formatter;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(final String photoPath) {
+        this.photoPath = photoPath;
     }
 }

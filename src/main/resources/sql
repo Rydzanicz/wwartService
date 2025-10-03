@@ -6,6 +6,7 @@ GRANT ALL PRIVILEGES ON DATABASE wwartService_database TO Viggo;
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS failed_processed_policy;
+DROP TABLE IF EXISTS comments;
 
 CREATE TABLE invoices (
     invoice_id VARCHAR(255) PRIMARY KEY,
@@ -54,6 +55,7 @@ VALUES
 SELECT * FROM invoices;
 SELECT * FROM orders;
 SELECT * FROM failed_processed_policy;
+SELECT * FROM comments;
 
 psql -U viggo -d wwartservice_database
 Viggo123Password

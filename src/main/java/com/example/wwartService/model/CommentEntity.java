@@ -30,14 +30,18 @@ public class CommentEntity {
     @Column(name = "created_date", nullable = false)
     private String createdDate;
 
+    @Column(name = "photo_path")
+    private String photoPath;
+
     public CommentEntity() {}
 
-    public CommentEntity(final String productId, final String author, final String text, final Integer rating, final String createdDate) {
+    public CommentEntity(final String productId, final String author, final String text, final Integer rating, final String createdDate, final String photoPath) {
         this.productId = productId;
         this.author = author;
         this.text = text;
         this.rating = rating;
         this.createdDate = createdDate;
+        this.photoPath = photoPath;
     }
 
     public CommentEntity(final Comment comment) {
@@ -45,8 +49,8 @@ public class CommentEntity {
         this.author = comment.getAuthor();
         this.text = comment.getText();
         this.rating = comment.getRating();
-        this.createdDate = comment.getCreatedDate()
-                                  .format(comment.getFormatter());
+        this.createdDate = comment.getCreatedDate().format(comment.getFormatter());
+        this.photoPath = comment.getPhotoPath();
     }
 
 
@@ -92,5 +96,17 @@ public class CommentEntity {
 
     public void setCreatedDate(final String createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setPhotoPath(final String photoPath) {
+        this.photoPath = photoPath;
     }
 }

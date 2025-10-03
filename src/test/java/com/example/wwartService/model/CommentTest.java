@@ -16,7 +16,8 @@ public class CommentTest {
     public void testCreateValidComment() {
         // given
         final LocalDateTime createdDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
-        final Comment comment = new Comment("P01", "Jan Kowalski", "Świetny produkt!", 5, createdDate);
+        final String photoPath = "resources/commentsPhoto";
+        final Comment comment = new Comment(1, "Jan Kowalski", "Świetny produkt!", 5, createdDate, photoPath);
 
         // when
         // then
@@ -32,10 +33,11 @@ public class CommentTest {
     public void testCreateCommentWithNullProductIdThrows() {
         // given
         final LocalDateTime createdDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
+        final String photoPath = "resources/commentsPhoto";
 
         // when
         final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            new Comment(null, "Jan Kowalski", "Komentarz", 4, createdDate);
+            new Comment(null, "Jan Kowalski", "Komentarz", 4, createdDate,photoPath);
         });
 
         // then

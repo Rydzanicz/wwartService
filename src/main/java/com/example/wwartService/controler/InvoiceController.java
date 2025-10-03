@@ -156,5 +156,32 @@ public class InvoiceController {
         }
     }
 
+    @GetMapping(value = "/get-invoices-data", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Invoice>> getInvoices(@RequestParam(required = false) String invoiceId, @RequestParam(required = false) String addressEmail) {
 
+        try {
+            List<Invoice> invoices = new ArrayList<>();
+
+            if (invoiceId != null && !invoiceId.isEmpty()) {
+                invoices.add(invoiceService.getInvoicesByInvoiceId(invoiceId));
+            } else {
+                if (addressEmail != null && !addressEmail.isEmpty()) {
+                    invoices = invoiceService.getInvoicesByAddressEmail(addressEmail);
+                } else {
+                    invoices = invoiceService.getAllInvoices();
+                }
+            }
+
+            if (invoices == null || invoices.isEmpty()) {
+                return ResponseEntity.notFound()
+                                     .build();
+            }
+
+            return ResponseEntity.ok(invoices);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .build();
+        }
+    }
 }

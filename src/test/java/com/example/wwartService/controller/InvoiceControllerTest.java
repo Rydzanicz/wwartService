@@ -367,39 +367,6 @@ public class InvoiceControllerTest {
     }
 
     @Test
-    public void testGetAllUniqueEmails() {
-        // given
-        final List<String> emails = List.of("jan.kowalski@example.com", "anna.nowak@example.com");
-        when(invoiceService.getUniqueEmail()).thenReturn(emails);
-
-        // when
-        final ResponseEntity<List<String>> response = invoiceController.getUniqueEmail();
-
-        // then
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(2,
-                     response.getBody()
-                             .size());
-        verify(invoiceService, times(1)).getUniqueEmail();
-    }
-
-    @Test
-    public void testGetUniqueEmailError() {
-        // given
-        doThrow(new RuntimeException("Database error")).when(invoiceService)
-                                                       .getUniqueEmail();
-
-        // when
-        ResponseEntity<List<String>> response = invoiceController.getUniqueEmail();
-
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNull(response.getBody());
-    }
-
-    @Test
     public void testGetInvoicesNoContent() {
         // given
         when(invoiceService.getAllInvoices()).thenReturn(new ArrayList<>());

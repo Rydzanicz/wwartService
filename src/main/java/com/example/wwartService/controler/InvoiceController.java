@@ -50,7 +50,7 @@ public class InvoiceController {
                                  .body("Terms and conditions have to be accepted");
         }
 
-        if (invoiceRequest.getShouldSendPDF() == null || !invoiceRequest.getShouldSendPDF()) {
+        if (invoiceRequest.getShouldSendPDF() == null) {
             logger.error("ShouldSendPDF were not accepted by client: {}", invoiceRequest.getBuyerName());
             return ResponseEntity.badRequest()
                                  .body("ShouldSendPDF have to be");

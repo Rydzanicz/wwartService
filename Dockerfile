@@ -1,3 +1,18 @@
+# Stage 1: Build aplikacji
+FROM gradle:8-jdk21-alpine AS build
+WORKDIR /app
+
+# Kopiuj pliki gradle
+COPY build.gradle settings.gradle ./
+COPY gradle gradle/
+
+# Kopiuj kod źródłowy
+COPY src src/
+
+# Zbuduj aplikację
+RUN gradle clean build -x test --no-daemon
+
+# Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine
 
 # Install certificates and timezone
@@ -10,15 +25,12 @@ RUN addgroup -g 1000 spring && \
 
 WORKDIR /app
 
-# Copy application jar
-COPY --chown=spring:spring build/libs/wwartService-0.0.1-SNAPSHOT.jar app.jar
-
-# Copy certificates if needed
-COPY --chown=spring:spring certs/ /app/certs/
+# Kopiuj JAR z build stage
+COPY --from=build --chown=spring:spring /app/build/libs/wwartService-0.0.1-SNAPSHOT.jar app.jar
 
 # Create logs directory
-RUN mkdir -p /var/log/wwartService && \
-    chown -R spring:spring /var/log/wwartService
+RUN mkdir -p /var/log/wwartService /tmp/uploads && \
+    chown -R spring:spring /var/log/wwartService /tmp/uploads
 
 # Switch to non-root user
 USER spring

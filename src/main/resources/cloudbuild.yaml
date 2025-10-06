@@ -1,0 +1,24 @@
+steps:
+  # Krok 1: Buduj aplikację Gradle (generuje plik JAR)
+  - name: 'gradle:7.5-jdk17'
+    args: ['./gradlew', 'build']
+
+  # Krok 2: Buduj obraz Dockera
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '--no-cache',
+      '-t',
+      'europe-central2-docker.pkg.dev/wwartaservice/cloud-run-source-deploy/wwartservice/wwartservice:$SHORT_SHA',
+      '.'
+    ]
+
+  # Krok 3: Wypchnij obraz do Google Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      'europe-central2-docker.pkg.dev/wwartaservice/cloud-run-source-deploy/wwartservice/wwartservice:$SHORT_SHA'
+    ]
+
+images:
+  - 'europe-central2-docker.pkg.dev/wwartaservice/cloud-run-source-deploy/wwartservice/wwartservice:$SHORT_SHA'

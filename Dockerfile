@@ -2,7 +2,7 @@
 FROM gradle:8-jdk21-alpine AS build
 WORKDIR /app
 
-# Kopiuj pliki gradle
+# Kopiuj pliki Gradle
 COPY build.gradle settings.gradle ./
 COPY gradle gradle/
 
@@ -15,11 +15,11 @@ RUN gradle clean build -x test --no-daemon
 # Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine
 
-# Install certificates and timezone
+# Instalacja certyfikatów i strefy czasowej
 RUN apk add --no-cache ca-certificates tzdata && \
     ln -sf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
 
-# Create non-root user
+# Utwórz użytkownika nie-root
 RUN addgroup -g 1000 spring && \
     adduser -D -s /bin/sh -u 1000 -G spring spring
 
@@ -28,11 +28,13 @@ WORKDIR /app
 # Kopiuj JAR z build stage
 COPY --from=build --chown=spring:spring /app/build/libs/wwartService-0.0.1-SNAPSHOT.jar app.jar
 
-# Create logs directory
-RUN mkdir -p /var/log/wwartService /tmp/uploads && \
-    chown -R spring:spring /var/log/wwartService /tmp/uploads
+# Utwórz katalogi na logi i uploady, nadaj uprawnienia
+RUN mkdir -p /app/uploads && \
+    chown -R spring:spring /app/uploads && \
+    chmod 777 /app/uploads
 
-# Switch to non-root user
+
+# Przełącz na użytkownika nie-root
 USER spring
 
 # Health check endpoint
@@ -41,7 +43,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 EXPOSE 8080
 
-# JVM optimizations for production
+# JVM optymalizacje na produkcję
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=70.0", \

@@ -3,37 +3,36 @@ package com.example.wwartService.service;
 import com.example.wwartService.model.Comment;
 import com.example.wwartService.model.CommentEntity;
 import com.example.wwartService.repository.CommentRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@SpringBootTest
+@ActiveProfiles("test")
 public class CommentsServiceTest {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private CommentRepository commentRepository;
+
+    @Autowired
     private CommentsService commentsService;
-    private FileStorageService fileStorageService;
 
-    @BeforeEach
-    void setUp() {
-        commentRepository = mock(CommentRepository.class);
-        fileStorageService = mock(FileStorageService.class);
+    @MockBean
+    private CommentRepository commentRepository;
 
-        commentsService = new CommentsService(commentRepository, fileStorageService);
-    }
+    @MockBean
+    private GoogleCloudStorageService googleCloudStorageService;
 
     @Test
     public void testGetCommentsByProductIdReturnsMappedList() {
@@ -42,7 +41,6 @@ public class CommentsServiceTest {
         final String createdDateStr = "2024-01-01 14:30:00";
         final LocalDateTime createdDate = LocalDateTime.parse(createdDateStr, formatter);
         final String photoPath = "resources/commentsPhoto";
-
         final CommentEntity entity = new CommentEntity(productId, "Jan Kowalski", "Świetny produkt!", 5, createdDateStr, photoPath);
 
         // when
@@ -71,12 +69,11 @@ public class CommentsServiceTest {
         final MockMultipartFile image = new MockMultipartFile("image", "commentsPhoto.jpg", "image/jpeg", "Dummy Image Content".getBytes());
         final String savedPhotoPath = "comments/photo123.jpg";
 
-        final CommentEntity savedEntityMock = new CommentEntity(productId, "Jan Kowalski", "Świetny produkt!", 5, "2024-01-01 14:30:00",
-                                                                savedPhotoPath);
+        final CommentEntity savedEntityMock = new CommentEntity(productId, "Jan Kowalski", "Świetny produkt!", 5, "2024-01-01 14:30:00", savedPhotoPath);
         savedEntityMock.setId(1L);
 
-        when(fileStorageService.saveFile(image, "comments")).thenReturn(savedPhotoPath);
-        when(commentRepository.save(org.mockito.ArgumentMatchers.any(CommentEntity.class))).thenReturn(savedEntityMock);
+        when(googleCloudStorageService.uploadFile(image)).thenReturn(savedPhotoPath);
+        when(commentRepository.save(any(CommentEntity.class))).thenReturn(savedEntityMock);
 
         final Comment comment = new Comment(productId, "Jan Kowalski", "Świetny produkt!", 5, "2024-01-01 14:30:00");
 
@@ -96,5 +93,4 @@ public class CommentsServiceTest {
         assertEquals(comment.getCreatedDate(), LocalDateTime.parse(capturedEntity.getCreatedDate(), formatter));
         assertEquals(savedPhotoPath, capturedEntity.getPhotoPath());
     }
-
 }

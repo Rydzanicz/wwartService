@@ -17,11 +17,11 @@ public class CommentsService {
     private static final Logger logger = LoggerFactory.getLogger(CommentsService.class);
 
     private final CommentRepository commentRepository;
-    private final FileStorageService fileStorageService;
+    private final GoogleCloudStorageService  googleCloudStorageService;
 
-    public CommentsService(final CommentRepository commentRepository, final FileStorageService fileStorageService) {
+    public CommentsService(final CommentRepository commentRepository, final GoogleCloudStorageService  googleCloudStorageService) {
         this.commentRepository = commentRepository;
-        this.fileStorageService = fileStorageService;
+        this.googleCloudStorageService = googleCloudStorageService;
     }
 
     public List<Comment> getCommentsByProductId(final String productId) {
@@ -34,7 +34,7 @@ public class CommentsService {
         String imageUrl = null;
         if (image != null && !image.isEmpty()) {
             try {
-                imageUrl = fileStorageService.saveFile(image, "comments");
+                imageUrl = googleCloudStorageService.uploadFile(image);
                 logger.info("Zapisano zdjęcie dla komentarza: {}", imageUrl);
             } catch (IOException e) {
                 logger.error("Błąd podczas zapisywania zdjęcia: {}", e.getMessage());

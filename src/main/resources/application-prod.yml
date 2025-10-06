@@ -10,7 +10,7 @@ spring:
         database-name: wwartaservice-db
 
   datasource:
-    username: ${DB_USERNAME:postgres}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 10

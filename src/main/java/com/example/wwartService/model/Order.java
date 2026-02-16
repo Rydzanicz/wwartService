@@ -8,33 +8,35 @@ public class Order {
     private final double priceWithVAT;
     private final double vatRate = 0.55;
 
-
-    public Order(final String name, final String description, final int quantity, final double priceWithVAT) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
-        if (description == null || description.isEmpty()) {
-            throw new IllegalArgumentException("Description cannot be null or empty.");
-        }
-        if (quantity == 0) {
-            throw new IllegalArgumentException("Quantity cannot be zero.");
-        }
-        if (priceWithVAT == 0) {
-            throw new IllegalArgumentException("Price date cannot be zero.");
-        }
-        this.name = name;
-        this.description = description;
-        this.quantity = quantity;
-        this.priceWithVAT = priceWithVAT;
-        this.price = priceWithVAT / (1 + this.vatRate);
+    private Order(final Builder builder) {
+        validate(builder);
+        this.name = builder.name;
+        this.description = builder.description;
+        this.quantity = builder.quantity;
+        this.priceWithVAT = builder.priceWithVAT;
+        this.price = this.priceWithVAT / (1 + this.vatRate);
     }
 
     public Order(final OrderEntity order) {
-        this.name = order.getProductName();
-        this.description = order.getProductDescription();
-        this.quantity = order.getQuantity();
-        this.priceWithVAT = order.getPrice();
-        this.price = priceWithVAT / (1 + this.vatRate);
+        this(new Builder().name(order.getProductName())
+                          .description(order.getProductDescription())
+                          .quantity(order.getQuantity())
+                          .priceWithVAT(order.getPrice()));
+    }
+
+    private void validate(final Builder builder) {
+        if (builder.name == null || builder.name.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+        if (builder.description == null || builder.description.isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be null or empty.");
+        }
+        if (builder.quantity == 0) {
+            throw new IllegalArgumentException("Quantity cannot be zero.");
+        }
+        if (builder.priceWithVAT == 0) {
+            throw new IllegalArgumentException("Price date cannot be zero.");
+        }
     }
 
     public int getQuantity() {
@@ -59,5 +61,36 @@ public class Order {
 
     public String getDescription() {
         return description;
+    }
+
+    public static class Builder {
+        private String name;
+        private String description;
+        private int quantity;
+        private double priceWithVAT;
+
+        public Builder name(final String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder description(final String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder quantity(final int quantity) {
+            this.quantity = quantity;
+            return this;
+        }
+
+        public Builder priceWithVAT(final double priceWithVAT) {
+            this.priceWithVAT = priceWithVAT;
+            return this;
+        }
+
+        public Order build() {
+            return new Order(this);
+        }
     }
 }

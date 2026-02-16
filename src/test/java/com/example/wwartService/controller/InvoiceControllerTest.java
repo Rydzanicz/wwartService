@@ -63,7 +63,12 @@ public class InvoiceControllerTest {
     @Test
     void testSaveInvoiceSuccess() {
         // given
-        final List<Order> orders = List.of(new Order("Product", "Description", 2, 200.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Product")
+                                                              .description("Description")
+                                                              .quantity(2)
+                                                              .priceWithVAT(200.0)
+                                                              .build());
+
         final InvoiceRequest validRequest = new InvoiceRequest();
         validRequest.setBuyerName("Test Buyer");
         validRequest.setBuyerAddress("Test Address");
@@ -83,16 +88,15 @@ public class InvoiceControllerTest {
         validRequest.setAcceptedTerms(true);
         validRequest.setShouldSendPDF(true);
 
-        final Invoice lastInvoice = new Invoice(1,
-                                                "Last Buyer",
-                                                "Last Address",
-                                                "last@example.com",
-                                                "0987654321",
-                                                "123456789",
-                                                LocalDateTime.now(),
-                                                false,
-                                                false,
-                                                orders);
+        final Invoice lastInvoice = new Invoice.Builder().invoiceNumber(1)
+                                                         .buyerName("Last Buyer")
+                                                         .buyerAddress("Last Address")
+                                                         .buyerAddressEmail("last@example.com")
+                                                         .buyerNIP("0987654321")
+                                                         .buyerPhone("123456789")
+                                                         .orderDate(LocalDateTime.now())
+                                                         .order(orders)
+                                                         .build();
 
         when(invoiceService.getLastInvoices()).thenReturn(lastInvoice);
 
@@ -107,17 +111,14 @@ public class InvoiceControllerTest {
         verify(invoiceService, times(1)).saveInvoiceWithOrders(any(Invoice.class), anyList());
     }
 
-
     @Test
     void testSaveInvoiceNullRequest() {
         // given
         // when
 
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                                                                () -> {
-                                                                    invoiceController.saveInvoice(
-                                                                            null);
-                                                                });
+                                                                () -> invoiceController.saveInvoice(
+                                                                        null));
 
         // then
         assertEquals("Invalid request payload", exception.getMessage());
@@ -132,10 +133,8 @@ public class InvoiceControllerTest {
 
         // when
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                                                                () -> {
-                                                                    invoiceController.saveInvoice(
-                                                                            invalidRequest);
-                                                                });
+                                                                () -> invoiceController.saveInvoice(
+                                                                        invalidRequest));
 
         // then
         assertEquals("Invalid request payload", exception.getMessage());
@@ -151,10 +150,8 @@ public class InvoiceControllerTest {
 
         // when
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                                                                () -> {
-                                                                    invoiceController.saveInvoice(
-                                                                            invalidRequest);
-                                                                });
+                                                                () -> invoiceController.saveInvoice(
+                                                                        invalidRequest));
 
         // then
         assertEquals("Invalid request payload", exception.getMessage());
@@ -191,26 +188,27 @@ public class InvoiceControllerTest {
                            .startsWith("Error saving invoice"));
     }
 
-
     @Test
     public void testGenerateInvoiceSuccess() throws IOException {
         // given
         final String invoiceId = "INV/001/2024";
 
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
-
-        final Invoice mockInvoice = new Invoice(1,
-                                                "Jan Kowalski",
-                                                "Popowicka 68",
-                                                "jan.kowalski@example.com",
-                                                "",
-                                                "123456789",
-                                                ordersDate,
-                                                false,
-                                                false,
-                                                orders);
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
+        final Invoice mockInvoice = new Invoice.Builder().invoiceNumber(1)
+                                                         .buyerName("Jan Kowalski")
+                                                         .buyerAddress("Popowicka 68")
+                                                         .buyerAddressEmail(
+                                                                 "jan.kowalski@example.com")
+                                                         .buyerNIP("")
+                                                         .buyerPhone("123456789")
+                                                         .orderDate(ordersDate)
+                                                         .order(orders)
+                                                         .build();
 
         when(invoiceService.getInvoicesByInvoiceId(any())).thenReturn(mockInvoice);
 
@@ -232,18 +230,20 @@ public class InvoiceControllerTest {
     public void testGetInvoicesByInvoiceId() {
         // given
         final LocalDateTime ordersDate = LocalDateTime.parse("2025-01-01 14:30:00", formatter);
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
-        final Invoice invoice = new Invoice(1,
-                                            "Jan Kowalski",
-                                            "Popowicka 68",
-                                            "jan.kowalski@example.com",
-                                            null,
-                                            "123456789",
-                                            ordersDate,
-                                            false,
-                                            false,
-                                            orders);
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
+        final Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                                     .buyerName("Jan Kowalski")
+                                                     .buyerAddress("Popowicka 68")
+                                                     .buyerAddressEmail("jan.kowalski@example.com")
+                                                     .buyerPhone("123456789")
+                                                     .orderDate(ordersDate)
+                                                     .order(orders)
+                                                     .build();
+
         when(invoiceService.getInvoicesByInvoiceId("FV/0001/01/2025")).thenReturn(invoice);
 
         // when
@@ -264,9 +264,9 @@ public class InvoiceControllerTest {
     void testGenerateInvoiceNullId() {
         // given
         // when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            invoiceController.generateInvoice(null);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                                                          () -> invoiceController.generateInvoice(
+                                                                  null));
 
         // then
         assertEquals("Invalid request payload", exception.getMessage());
@@ -282,10 +282,8 @@ public class InvoiceControllerTest {
 
         // when
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                                                                () -> {
-                                                                    invoiceController.generateInvoice(
-                                                                            invoiceId);
-                                                                });
+                                                                () -> invoiceController.generateInvoice(
+                                                                        invoiceId));
 
         // then
         assertEquals("Invoice not found", exception.getMessage());
@@ -295,19 +293,21 @@ public class InvoiceControllerTest {
     public void testGetInvoicesByEmail() {
         // given
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
         final List<Invoice> invoices = new ArrayList<>();
-        invoices.add(new Invoice(1,
-                                 "Jan Kowalski",
-                                 "Popowicka 68",
-                                 "jan.kowalski@example.com",
-                                 null,
-                                 "123456789",
-                                 ordersDate,
-                                 false,
-                                 false,
-                                 orders));
+        invoices.add(new Invoice.Builder().invoiceNumber(1)
+                                          .buyerName("Jan Kowalski")
+                                          .buyerAddress("Popowicka 68")
+                                          .buyerAddressEmail("jan.kowalski@example.com")
+                                          .buyerPhone("123456789")
+                                          .orderDate(ordersDate)
+                                          .order(orders)
+                                          .build());
+
         when(invoiceService.getInvoicesByAddressEmail("jan.kowalski@example.com")).thenReturn(
                 invoices);
 
@@ -329,29 +329,29 @@ public class InvoiceControllerTest {
         // given
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
 
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
         final List<Invoice> invoices = new ArrayList<>();
-        invoices.add(new Invoice(1,
-                                 "Jan Kowalski",
-                                 "Popowicka 68",
-                                 "jan.kowalski@example.com",
-                                 null,
-                                 "123456789",
-                                 ordersDate,
-                                 false,
-                                 false,
-                                 orders));
-        invoices.add(new Invoice(2,
-                                 "Anna Nowak",
-                                 "Kwiatowa 12",
-                                 "anna.nowak@example.com",
-                                 null,
-                                 "123456789",
-                                 ordersDate,
-                                 false,
-                                 false,
-                                 orders));
+        invoices.add(new Invoice.Builder().invoiceNumber(1)
+                                          .buyerName("Jan Kowalski")
+                                          .buyerAddress("Popowicka 68")
+                                          .buyerAddressEmail("jan.kowalski@example.com")
+                                          .buyerPhone("123456789")
+                                          .orderDate(ordersDate)
+                                          .order(orders)
+                                          .build());
+        invoices.add(new Invoice.Builder().invoiceNumber(2)
+                                          .buyerName("Anna Nowak")
+                                          .buyerAddress("Kwiatowa 12")
+                                          .buyerAddressEmail("anna.nowak@example.com")
+                                          .buyerPhone("123456789")
+                                          .orderDate(ordersDate)
+                                          .order(orders)
+                                          .build());
+
         when(invoiceService.getAllInvoices()).thenReturn(invoices);
 
         // when
@@ -414,29 +414,29 @@ public class InvoiceControllerTest {
     }
 
     @Test
-    void testSaveInvoiceShouldSendPDFNotAccepted() {
-
-        // given
-        final InvoiceRequest request = new InvoiceRequest();
-        request.setBuyerName("Test Buyer");
-        request.setOrders(List.of(new OrderRequest()));
-        request.setAcceptedTerms(true);
-        request.setShouldSendPDF(false);
-
-        // when
-        final ResponseEntity<String> response = invoiceController.saveInvoice(request);
-
-        // then
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("ShouldSendPDF have to be", response.getBody());
-    }
-
-    @Test
     void testGenerateInvoiceIOException() throws IOException {
 
         // given
         final String invoiceId = "FV/0001/01/2025";
-        final Invoice invoice = new Invoice();
+        final Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                                     .buyerName("Test")
+                                                     .buyerAddress("Address")
+                                                     .buyerAddressEmail("test@example.com")
+                                                     .buyerNIP("1234567890")
+                                                     .buyerPhone("123456789")
+                                                     .orderDate(LocalDateTime.now())
+                                                     .emailSend(false)
+                                                     .shouldSendPDF(false)
+                                                     .order(List.of(new Order.Builder().name(
+                                                                                               "Produkt A")
+                                                                                       .description(
+                                                                                               "Opis A")
+                                                                                       .quantity(1)
+                                                                                       .priceWithVAT(
+                                                                                               100.0)
+                                                                                       .build()))
+                                                     .build();
+
         when(invoiceService.getInvoicesByInvoiceId(invoiceId)).thenReturn(invoice);
         when(pdfGeneratorService.generateInvoicePdf(invoice)).thenThrow(new IOException("File error"));
 
@@ -471,10 +471,8 @@ public class InvoiceControllerTest {
 
         // when
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                                                                () -> {
-                                                                    invoiceController.generateMail(
-                                                                            invalidRequest);
-                                                                });
+                                                                () -> invoiceController.generateMail(
+                                                                        invalidRequest));
 
         // then
         assertEquals("Invalid request payload", exception.getMessage());

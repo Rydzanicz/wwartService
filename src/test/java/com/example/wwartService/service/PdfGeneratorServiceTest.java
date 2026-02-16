@@ -31,9 +31,22 @@ public class PdfGeneratorServiceTest {
         final String buyerPhone = "987654321";
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final ArrayList<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(2)
+                                      .priceWithVAT(100.0)
+                                      .build());
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
+
+        final Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                                     .buyerName(buyerName)
+                                                     .buyerAddress(buyerAddress)
+                                                     .buyerAddressEmail(buyerEmail)
+                                                     .buyerNIP(buyerNip)
+                                                     .buyerPhone(buyerPhone)
+                                                     .orderDate(ordersDate)
+                                                     .order(orders)
+                                                     .build();
         final PdfGeneratorService pdfGeneratorService = Mockito.spy(PdfGeneratorService.class);
 
         //when
@@ -47,7 +60,11 @@ public class PdfGeneratorServiceTest {
     public void testCalculateVat() {
         //given
         final ArrayList<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(2)
+                                      .priceWithVAT(100.0)
+                                      .build());
         //when
 
         final double sumNet = orders.stream()
@@ -74,11 +91,22 @@ public class PdfGeneratorServiceTest {
         final String buyerNip = "0987654321";
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final ArrayList<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(2)
+                                      .priceWithVAT(100.0)
+                                      .build());
         final String buyerPhone = "987654321";
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
-
+        final Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                                     .buyerName(buyerName)
+                                                     .buyerAddress(buyerAddress)
+                                                     .buyerAddressEmail(buyerEmail)
+                                                     .buyerNIP(buyerNip)
+                                                     .buyerPhone(buyerPhone)
+                                                     .orderDate(ordersDate)
+                                                     .order(orders)
+                                                     .build();
         final PdfGeneratorService pdfGeneratorService = new PdfGeneratorService();
         final ByteArrayOutputStream pdfOutput = pdfGeneratorService.generateInvoicePdf(invoice);
 
@@ -108,12 +136,26 @@ public class PdfGeneratorServiceTest {
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final ArrayList<Order> orders = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            orders.add(new Order("Produkt " + i, "Opis " + i, 2, 100.0));
+            orders.add(
+                    new Order.Builder()
+                            .name("Produkt " + i)
+                            .description("Opis " + i)
+                            .quantity(2)
+                            .priceWithVAT(100.0)
+                            .build()
+                      );
         }
         final String buyerPhone = "987654321";
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
-
+        final Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                                     .buyerName(buyerName)
+                                                     .buyerAddress(buyerAddress)
+                                                     .buyerAddressEmail(buyerEmail)
+                                                     .buyerNIP(buyerNip)
+                                                     .buyerPhone(buyerPhone)
+                                                     .orderDate(ordersDate)
+                                                     .order(orders)
+                                                     .build();
         final PdfGeneratorService pdfGeneratorService = new PdfGeneratorService();
 
         //when
@@ -132,11 +174,22 @@ public class PdfGeneratorServiceTest {
         final String buyerNip = "0987654321";
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final ArrayList<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 2, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(2)
+                                      .priceWithVAT(100.0)
+                                      .build());
         final String buyerPhone = "987654321";
 
-        final Invoice invoice = new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders);
-
+        final Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                                     .buyerName(buyerName)
+                                                     .buyerAddress(buyerAddress)
+                                                     .buyerAddressEmail(buyerEmail)
+                                                     .buyerNIP(buyerNip)
+                                                     .buyerPhone(buyerPhone)
+                                                     .orderDate(ordersDate)
+                                                     .order(orders)
+                                                     .build();
         final PdfGeneratorService pdfGeneratorService = new PdfGeneratorService();
 
         //when
@@ -163,7 +216,15 @@ public class PdfGeneratorServiceTest {
         final String buyerPhone = "987654321";
 
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(1, buyerName, buyerAddress, buyerEmail, buyerNip, buyerPhone, ordersDate, false, false, orders),
+                     () ->  new Invoice.Builder().invoiceNumber(1)
+                                                 .buyerName(buyerName)
+                                                 .buyerAddress(buyerAddress)
+                                                 .buyerAddressEmail(buyerEmail)
+                                                 .buyerNIP(buyerNip)
+                                                 .buyerPhone(buyerPhone)
+                                                 .orderDate(ordersDate)
+                                                 .order(orders)
+                                                 .build(),
                      "List of Order cannot be null or empty.");
     }
 }

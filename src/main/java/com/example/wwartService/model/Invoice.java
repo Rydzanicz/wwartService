@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 public class Invoice {
     private static final String INVOICE_ID_PATTERN = "^FV/(\\d{4})/(\\d{2})/(\\d{4})$";
     private static final String FORMAT = "FV/%04d/%02d/%d";
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final String buyerName;
     private final String buyerAddress;
@@ -20,106 +21,24 @@ public class Invoice {
     private final boolean isEmailSend;
     private final boolean shouldSendPDF;
     private final List<Order> order;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private String invoiceId;
 
-    public Invoice(final int invoiceNR,
-                   final String buyerName,
-                   final String buyerAddress,
-                   final String buyerAddressEmail,
-                   final String buyerNIP,
-                   final String buyerPhone,
-                   final LocalDateTime orderDate,
-                   final boolean isEmailSend,
-                   final boolean shouldSendPDF,
-                   final List<Order> order) {
-        if (buyerName == null || buyerName.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
-        if (buyerAddress == null || buyerAddress.isEmpty()) {
-            throw new IllegalArgumentException("Address cannot be null or empty.");
-        }
-        if (buyerAddressEmail == null || buyerAddressEmail.isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty.");
-        }
-        if (buyerPhone == null || buyerPhone.isEmpty()) {
-            throw new IllegalArgumentException("Phone cannot be null or empty.");
-        }
-        if (orderDate == null) {
-            throw new IllegalArgumentException("Order date cannot be null or empty.");
-        }
-        if (order.isEmpty()) {
-            throw new IllegalArgumentException("List of Order cannot be null or empty.");
-        }
+    private Invoice(Builder builder) {
 
-        this.invoiceId = generateInvoiceId(invoiceNR, orderDate);
-        this.buyerName = buyerName;
-        this.buyerAddress = buyerAddress;
-        this.buyerAddressEmail = buyerAddressEmail;
-        this.buyerNIP = buyerNIP;
-        this.buyerPhone = buyerPhone;
-        this.orderDate = orderDate;
-        this.isEmailSend = isEmailSend;
-        this.shouldSendPDF = shouldSendPDF;
-        this.order = order;
-    }
-
-    public Invoice(final int invoiceNR,
-                   final String buyerName,
-                   final String buyerAddress,
-                   final String buyerAddressEmail,
-                   final String buyerNIP,
-                   final String buyerPhone,
-                   final String orderDate,
-                   final boolean isEmailSend,
-                   final boolean shouldSendPDF,
-                   final List<Order> order) {
-        if (buyerName == null || buyerName.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
-        }
-        if (buyerAddress == null || buyerAddress.isEmpty()) {
-            throw new IllegalArgumentException("Address cannot be null or empty.");
-        }
-        if (buyerAddressEmail == null || buyerAddressEmail.isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty.");
-        }
-        if (buyerPhone == null || buyerPhone.isEmpty()) {
-            throw new IllegalArgumentException("Phone cannot be null or empty.");
-        }
-        if (orderDate == null || orderDate.equals("")) {
-            throw new IllegalArgumentException("Order date cannot be null or empty.");
-        }
-        if (order.isEmpty()) {
-            throw new IllegalArgumentException("List of Order cannot be null or empty.");
-        }
-
-        this.invoiceId = generateInvoiceId(invoiceNR, LocalDateTime.parse(orderDate, formatter));
-        this.buyerName = buyerName;
-        this.buyerAddress = buyerAddress;
-        this.buyerAddressEmail = buyerAddressEmail;
-        this.buyerNIP = buyerNIP;
-        this.buyerPhone = buyerPhone;
-        this.orderDate = LocalDateTime.parse(orderDate, formatter);
-        this.isEmailSend = isEmailSend;
-        this.shouldSendPDF = shouldSendPDF;
-        this.order = order;
-    }
-
-    public Invoice() {
-        this.invoiceId = generateInvoiceId(1, LocalDateTime.now());
-        this.buyerName = null;
-        this.buyerAddress = null;
-        this.buyerAddressEmail = null;
-        this.buyerNIP = null;
-        this.buyerPhone = null;
-        this.orderDate = LocalDateTime.now();
-        this.isEmailSend = true;
-        this.shouldSendPDF = false;
-        this.order = new ArrayList<>();
+        validate(builder);
+        this.invoiceId = generateInvoiceId(builder.invoiceNumber, builder.orderDate);
+        this.buyerName = builder.buyerName;
+        this.buyerAddress = builder.buyerAddress;
+        this.buyerAddressEmail = builder.buyerAddressEmail;
+        this.buyerNIP = builder.buyerNIP;
+        this.buyerPhone = builder.buyerPhone;
+        this.orderDate = builder.orderDate;
+        this.isEmailSend = builder.isEmailSend;
+        this.shouldSendPDF = builder.shouldSendPDF;
+        this.order = builder.order;
     }
 
     public Invoice(final InvoiceEntity invoice) {
-
         validateInvoiceId(invoice.getInvoiceId());
         this.invoiceId = invoice.getInvoiceId();
         this.buyerName = invoice.getName();
@@ -136,7 +55,21 @@ public class Invoice {
                             .toList();
     }
 
-    public static String generateInvoiceId(final int invoiceNumber, final LocalDateTime orderDate) {
+    public Invoice() {
+        this.invoiceId = generateInvoiceId(1, LocalDateTime.now());
+        this.buyerName = null;
+        this.buyerAddress = null;
+        this.buyerAddressEmail = null;
+        this.buyerNIP = null;
+        this.buyerPhone = null;
+        this.orderDate = LocalDateTime.now();
+        this.isEmailSend = true;
+        this.shouldSendPDF = false;
+        this.order = new ArrayList<>();
+    }
+
+    public static String generateInvoiceId(final int invoiceNumber,
+                                           final LocalDateTime orderDate) {
         if (invoiceNumber <= 0) {
             throw new IllegalArgumentException("Invoice ID cannot be 0 or less than 0.");
         }
@@ -156,6 +89,30 @@ public class Invoice {
                     "Invalid Invoice ID format. Correct format: FV/{number}/{month}/{year}, e.g., FV/0001/01/2024");
         }
         return true;
+    }
+
+    private void validate(final Builder builder) {
+        if (builder.buyerName == null || builder.buyerName.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty.");
+        }
+        if (builder.buyerAddress == null || builder.buyerAddress.isEmpty()) {
+            throw new IllegalArgumentException("Address cannot be null or empty.");
+        }
+        if (builder.buyerAddressEmail == null || builder.buyerAddressEmail.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty.");
+        }
+        if (builder.buyerPhone == null || builder.buyerPhone.isEmpty()) {
+            throw new IllegalArgumentException("Phone cannot be null or empty.");
+        }
+        if (builder.orderDate == null) {
+            throw new IllegalArgumentException("Order date cannot be null or empty.");
+        }
+        if (builder.order == null || builder.order.isEmpty()) {
+            throw new IllegalArgumentException("List of Order cannot be null or empty.");
+        }
+        if (builder.invoiceNumber <= 0) {
+            throw new IllegalArgumentException("Invoice ID cannot be 0 or less than 0.");
+        }
     }
 
     private int extractInvoiceNumber() {
@@ -220,5 +177,79 @@ public class Invoice {
 
     public DateTimeFormatter getFormatter() {
         return formatter;
+    }
+
+    public static class Builder {
+        private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
+                "yyyy-MM-dd HH:mm:ss");
+        private int invoiceNumber;
+        private String buyerName;
+        private String buyerAddress;
+        private String buyerAddressEmail;
+        private String buyerNIP;
+        private String buyerPhone;
+        private LocalDateTime orderDate;
+        private boolean isEmailSend;
+        private boolean shouldSendPDF;
+        private List<Order> order;
+
+        public Builder invoiceNumber(int invoiceNumber) {
+            this.invoiceNumber = invoiceNumber;
+            return this;
+        }
+
+        public Builder buyerName(String buyerName) {
+            this.buyerName = buyerName;
+            return this;
+        }
+
+        public Builder buyerAddress(String buyerAddress) {
+            this.buyerAddress = buyerAddress;
+            return this;
+        }
+
+        public Builder buyerAddressEmail(String buyerAddressEmail) {
+            this.buyerAddressEmail = buyerAddressEmail;
+            return this;
+        }
+
+        public Builder buyerNIP(String buyerNIP) {
+            this.buyerNIP = buyerNIP;
+            return this;
+        }
+
+        public Builder buyerPhone(String buyerPhone) {
+            this.buyerPhone = buyerPhone;
+            return this;
+        }
+
+        public Builder orderDate(LocalDateTime orderDate) {
+            this.orderDate = orderDate;
+            return this;
+        }
+
+        public Builder orderDateString(final String orderDate) {
+            this.orderDate = LocalDateTime.parse(orderDate, formatter);
+            return this;
+        }
+
+        public Builder emailSend(boolean emailSend) {
+            this.isEmailSend = emailSend;
+            return this;
+        }
+
+        public Builder shouldSendPDF(boolean shouldSendPDF) {
+            this.shouldSendPDF = shouldSendPDF;
+            return this;
+        }
+
+        public Builder order(List<Order> order) {
+            this.order = order;
+            return this;
+        }
+
+        public Invoice build() {
+            return new Invoice(this);
+        }
     }
 }

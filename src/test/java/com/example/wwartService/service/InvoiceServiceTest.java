@@ -42,31 +42,37 @@ public class InvoiceServiceTest {
     public void testGetAllInvoices() {
         // given
         final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(1)
+                                      .priceWithVAT(100.0)
+                                      .build());
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "987654321";
         final List<InvoiceEntity> entities = new ArrayList<>();
-        entities.add(new InvoiceEntity(new Invoice(1,
-                                                   "Jan Kowalski",
-                                                   "Popowicka 68",
-                                                   "jan.kowalski@example.com",
-                                                   null,
-                                                   buyerPhone,
-                                                   ordersDate,
-                                                   false,
-                                                   false,
-                                                   orders)));
 
-        entities.add(new InvoiceEntity(new Invoice(2,
-                                                   "Anna Nowak",
-                                                   "Kwiatowa 12",
-                                                   "anna.nowak@example.com",
-                                                   null,
-                                                   buyerPhone,
-                                                   ordersDate,
-                                                   false,
-                                                   false,
-                                                   orders)));
+        // Invoice 1
+        Invoice invoice1 = new Invoice.Builder().invoiceNumber(1)
+                                                .buyerName("Jan Kowalski")
+                                                .buyerAddress("Popowicka 68")
+                                                .buyerAddressEmail("jan.kowalski@example.com")
+                                                .buyerPhone(buyerPhone)
+                                                .orderDate(ordersDate)
+                                                .order(orders)
+                                                .build();
+        entities.add(new InvoiceEntity(invoice1));
+
+        // Invoice 2
+        Invoice invoice2 = new Invoice.Builder().invoiceNumber(2)
+                                                .buyerName("Anna Nowak")
+                                                .buyerAddress("Kwiatowa 12")
+                                                .buyerAddressEmail("anna.nowak@example.com")
+                                                .buyerPhone(buyerPhone)
+                                                .orderDate(ordersDate)
+                                                .order(orders)
+                                                .build();
+        entities.add(new InvoiceEntity(invoice2));
+
         when(invoiceRepository.findAll()).thenReturn(entities);
 
         // when
@@ -105,20 +111,25 @@ public class InvoiceServiceTest {
     public void testGetInvoicesByInvoiceId() {
         // given
         final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(1)
+                                      .priceWithVAT(100.0)
+                                      .build());
         final String invoiceId = "FV/0001/01/2025";
         final LocalDateTime ordersDate = LocalDateTime.parse("2025-01-01 14:30:00", formatter);
         final String buyerPhone = "987654321";
-        final InvoiceEntity entities = new InvoiceEntity(new Invoice(1,
-                                                                     "Jan Kowalski",
-                                                                     "Popowicka 68",
-                                                                     "jan.kowalski@example.com",
-                                                                     null,
-                                                                     buyerPhone,
-                                                                     ordersDate,
-                                                                     false,
-                                                                     false,
-                                                                     orders));
+
+        Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                               .buyerName("Jan Kowalski")
+                                               .buyerAddress("Popowicka 68")
+                                               .buyerAddressEmail("jan.kowalski@example.com")
+                                               .buyerPhone(buyerPhone)
+                                               .orderDate(ordersDate)
+                                               .order(orders)
+                                               .build();
+
+        final InvoiceEntity entities = new InvoiceEntity(invoice);
         when(invoiceRepository.findInvoicesByInvoiceId(invoiceId)).thenReturn(entities);
 
         // when
@@ -134,20 +145,24 @@ public class InvoiceServiceTest {
     public void testGetLastInvoices() {
         // given
         final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(1)
+                                      .priceWithVAT(100.0)
+                                      .build());
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "987654321";
-        final Optional<InvoiceEntity> lastInvoiceEntity = Optional.of(new InvoiceEntity(new Invoice(
-                5,
-                "Anna Nowak",
-                "Kwiatowa 12",
-                "anna.nowak@example.com",
-                null,
-                buyerPhone,
-                ordersDate,
-                false,
-                false,
-                orders)));
+
+        Invoice invoice = new Invoice.Builder().invoiceNumber(5)
+                                               .buyerName("Anna Nowak")
+                                               .buyerAddress("Kwiatowa 12")
+                                               .buyerAddressEmail("anna.nowak@example.com")
+                                               .buyerPhone(buyerPhone)
+                                               .orderDate(ordersDate)
+                                               .order(orders)
+                                               .build();
+
+        final Optional<InvoiceEntity> lastInvoiceEntity = Optional.of(new InvoiceEntity(invoice));
         when(invoiceRepository.getLastInvoices()).thenReturn(lastInvoiceEntity);
 
         // when
@@ -166,20 +181,25 @@ public class InvoiceServiceTest {
     public void testGetInvoicesByAddressEmail() {
         // given
         final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(1)
+                                      .priceWithVAT(100.0)
+                                      .build());
         final String email = "jan.kowalski@example.com";
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "987654321";
-        final List<InvoiceEntity> entities = List.of(new InvoiceEntity(new Invoice(1,
-                                                                                   "Jan Kowalski",
-                                                                                   "Popowicka 68",
-                                                                                   email,
-                                                                                   null,
-                                                                                   buyerPhone,
-                                                                                   ordersDate,
-                                                                                   false,
-                                                                                   false,
-                                                                                   orders)));
+
+        Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                               .buyerName("Jan Kowalski")
+                                               .buyerAddress("Popowicka 68")
+                                               .buyerAddressEmail(email)
+                                               .buyerPhone(buyerPhone)
+                                               .orderDate(ordersDate)
+                                               .order(orders)
+                                               .build();
+
+        final List<InvoiceEntity> entities = List.of(new InvoiceEntity(invoice));
         when(invoiceRepository.findInvoicesByEmail(email)).thenReturn(entities);
 
         // when
@@ -198,19 +218,23 @@ public class InvoiceServiceTest {
     public void testSaveInvoice() {
         // given
         final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(1)
+                                      .priceWithVAT(100.0)
+                                      .build());
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "987654321";
-        final Invoice invoice = new Invoice(1,
-                                            "Jan Kowalski",
-                                            "Popowicka 68",
-                                            "jan.kowalski@example.com",
-                                            null,
-                                            buyerPhone,
-                                            ordersDate,
-                                            false,
-                                            false,
-                                            orders);
+
+        Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                               .buyerName("Jan Kowalski")
+                                               .buyerAddress("Popowicka 68")
+                                               .buyerAddressEmail("jan.kowalski@example.com")
+                                               .buyerPhone(buyerPhone)
+                                               .orderDate(ordersDate)
+                                               .order(orders)
+                                               .build();
+
         final InvoiceEntity savedEntity = new InvoiceEntity(invoice);
         when(invoiceRepository.save(any(InvoiceEntity.class))).thenReturn(savedEntity);
 
@@ -259,17 +283,15 @@ public class InvoiceServiceTest {
     @Test
     void testUpdateEmailSendStatusForNonExistingInvoiceId() {
         // Given
-        final String invoiceId = "FV/999/2024"; // Non-existing invoice ID
+        final String invoiceId = "FV/999/2024";
         final boolean status = true;
 
         doThrow(new IllegalArgumentException("Invoice not found")).when(invoiceRepository)
                                                                   .updateEmailSendStatus(invoiceId,
                                                                                          status);
-
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> {
-            invoiceService.updateEmailSendStatus(invoiceId, status);
-        });
+        assertThrows(IllegalArgumentException.class,
+                     () -> invoiceService.updateEmailSendStatus(invoiceId, status));
 
         verify(invoiceRepository, times(1)).updateEmailSendStatus(invoiceId, status);
     }

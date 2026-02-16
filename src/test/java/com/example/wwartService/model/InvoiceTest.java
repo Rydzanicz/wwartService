@@ -19,22 +19,23 @@ public class InvoiceTest {
     @Test
     public void testShouldBePositive() {
         //given
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
         final LocalDateTime ordersDate = LocalDateTime.parse("2025-01-01 14:30:00", formatter);
         final String buyerPhone = "123123123";
 
         //when
-        final Invoice invoice = new Invoice(1,
-                                            "Jan Kowalski",
-                                            "popowicka 68",
-                                            "jan.kowalski@example.com",
-                                            null,
-                                            buyerPhone,
-                                            ordersDate,
-                                            false,
-                                            false,
-                                            orders);
+        final Invoice invoice = new Invoice.Builder().invoiceNumber(1)
+                                                     .buyerName("Jan Kowalski")
+                                                     .buyerAddress("popowicka 68")
+                                                     .buyerAddressEmail("jan.kowalski@example.com")
+                                                     .buyerPhone(buyerPhone)
+                                                     .orderDate(ordersDate)
+                                                     .order(orders)
+                                                     .build();
 
         //then
         assertNotNull(invoice);
@@ -53,22 +54,23 @@ public class InvoiceTest {
         final String buyerEmail = "jan.kowalski@example.com";
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "123123123";
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
 
         //when
         //then
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            new Invoice(invoiceNumber,
-                        buyerName,
-                        buyerAddress,
-                        buyerEmail,
-                        null,
-                        buyerPhone,
-                        ordersDate,
-                        false,
-                        false,
-                        orders);
+            new Invoice.Builder().invoiceNumber(invoiceNumber)
+                                 .buyerName(buyerName)
+                                 .buyerAddress(buyerAddress)
+                                 .buyerAddressEmail(buyerEmail)
+                                 .buyerPhone(buyerPhone)
+                                 .orderDate(ordersDate)
+                                 .order(orders)
+                                 .build();
         });
         assertEquals("Invoice ID cannot be 0 or less than 0.", thrown.getMessage());
     }
@@ -81,22 +83,22 @@ public class InvoiceTest {
         final String buyerEmail = "jan.kowalski@example.com";
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "123123123";
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
 
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber,
-                                       null,
-                                       buyerAddress,
-                                       buyerEmail,
-                                       null,
-                                       buyerPhone,
-                                       ordersDate,
-                                       false,
-                                       false,
-                                       orders),
+                     () -> new Invoice.Builder().invoiceNumber(invoiceNumber)
+                                                .buyerAddress(buyerAddress)
+                                                .buyerAddressEmail(buyerEmail)
+                                                .buyerPhone(buyerPhone)
+                                                .orderDate(ordersDate)
+                                                .order(orders)
+                                                .build(),
                      "Name cannot be null or empty.");
     }
 
@@ -108,22 +110,22 @@ public class InvoiceTest {
         final String buyerEmail = "jan.kowalski@example.com";
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "123123123";
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
 
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber,
-                                       buyerName,
-                                       null,
-                                       buyerEmail,
-                                       null,
-                                       buyerPhone,
-                                       ordersDate,
-                                       false,
-                                       false,
-                                       orders),
+                     () -> new Invoice.Builder().invoiceNumber(invoiceNumber)
+                                                .buyerName(buyerName)
+                                                .buyerAddressEmail(buyerEmail)
+                                                .buyerPhone(buyerPhone)
+                                                .orderDate(ordersDate)
+                                                .order(orders)
+                                                .build(),
                      "Name cannot be null or empty.");
     }
 
@@ -135,22 +137,22 @@ public class InvoiceTest {
         final String buyerAddress = "popowicka 68";
         final String buyerPhone = "123123123";
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
 
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber,
-                                       buyerName,
-                                       buyerAddress,
-                                       null,
-                                       null,
-                                       buyerPhone,
-                                       ordersDate,
-                                       false,
-                                       false,
-                                       orders),
+                     () -> new Invoice.Builder().invoiceNumber(invoiceNumber)
+                                                .buyerName(buyerName)
+                                                .buyerAddress(buyerAddress)
+                                                .buyerPhone(buyerPhone)
+                                                .orderDate(ordersDate)
+                                                .order(orders)
+                                                .build(),
                      "Email cannot be null or empty.");
     }
 
@@ -162,22 +164,22 @@ public class InvoiceTest {
         final String buyerAddress = "popowicka 68";
         final String buyerEmail = "jan.kowalski@example.com";
         final String buyerPhone = "123123123";
-        final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        final List<Order> orders = List.of(new Order.Builder().name("Produkt A")
+                                                              .description("Opis A")
+                                                              .quantity(1)
+                                                              .priceWithVAT(100.0)
+                                                              .build());
 
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber,
-                                       buyerName,
-                                       buyerAddress,
-                                       buyerEmail,
-                                       null,
-                                       buyerPhone,
-                                       "",
-                                       false,
-                                       false,
-                                       orders),
+                     () -> new Invoice.Builder().invoiceNumber(invoiceNumber)
+                                                .buyerName(buyerName)
+                                                .buyerAddress(buyerAddress)
+                                                .buyerAddressEmail(buyerEmail)
+                                                .buyerPhone(buyerPhone)
+                                                .order(orders)
+                                                .build(),
                      "List of Order cannot be null or empty.");
     }
 
@@ -195,16 +197,14 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Invoice(invoiceNumber,
-                                       buyerName,
-                                       buyerAddress,
-                                       buyerEmail,
-                                       null,
-                                       buyerPhone,
-                                       ordersDate,
-                                       false,
-                                       false,
-                                       orders),
+                     () -> new Invoice.Builder().invoiceNumber(invoiceNumber)
+                                                .buyerName(buyerName)
+                                                .buyerAddress(buyerAddress)
+                                                .buyerAddressEmail(buyerEmail)
+                                                .buyerPhone(buyerPhone)
+                                                .orderDate(ordersDate)
+                                                .order(orders)
+                                                .build(),
                      "List of Order cannot be null or empty.");
     }
 
@@ -214,7 +214,10 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Order(null, "Opis A", 1, 100.0),
+                     () -> new Order.Builder().description("Opis A")
+                                              .quantity(1)
+                                              .priceWithVAT(100.0)
+                                              .build(),
                      "Name cannot be null or empty.");
     }
 
@@ -224,7 +227,10 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Order("Name", null, 1, 100.0),
+                     () -> new Order.Builder().name("Produkt A")
+                                              .quantity(1)
+                                              .priceWithVAT(100.0)
+                                              .build(),
                      "Description cannot be null or empty.");
     }
 
@@ -234,7 +240,11 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Order("Name", "Opis A", 0, 100.0),
+                     () -> new Order.Builder().name("Produkt A")
+                                              .description("Opis A")
+                                              .quantity(0)
+                                              .priceWithVAT(100.0)
+                                              .build(),
                      "Quantity cannot be zero.");
     }
 
@@ -244,7 +254,11 @@ public class InvoiceTest {
         //when
         //then
         assertThrows(IllegalArgumentException.class,
-                     () -> new Order("Name", "Opis A", 1, 0.0),
+                     () -> new Order.Builder().name("Produkt A")
+                                              .description("Opis A")
+                                              .quantity(1)
+                                              .priceWithVAT(0.0)
+                                              .build(),
                      "Price cannot be zero.");
     }
 
@@ -317,20 +331,22 @@ public class InvoiceTest {
     public void testShouldIncreaseInvoiceNumber() {
         // given
         final List<Order> orders = new ArrayList<>();
-        orders.add(new Order("Produkt A", "Opis A", 1, 100.0));
+        orders.add(new Order.Builder().name("Produkt A")
+                                      .description("Opis A")
+                                      .quantity(1)
+                                      .priceWithVAT(100.0)
+                                      .build());
         final LocalDateTime ordersDate = LocalDateTime.parse("2024-01-01 14:30:00", formatter);
         final String buyerPhone = "123123123";
 
-        final Invoice invoice = new Invoice(9000,
-                                            "Jan Kowalski",
-                                            "popowicka 68",
-                                            "jan.kowalski@example.com",
-                                            null,
-                                            buyerPhone,
-                                            ordersDate,
-                                            false,
-                                            false,
-                                            orders);
+        final Invoice invoice = new Invoice.Builder().invoiceNumber(9000)
+                                                     .buyerName("Jan Kowalski")
+                                                     .buyerAddress("popowicka 68")
+                                                     .buyerAddressEmail("jan.kowalski@example.com")
+                                                     .buyerPhone(buyerPhone)
+                                                     .orderDate(ordersDate)
+                                                     .order(orders)
+                                                     .build();
 
         // when
         int extractedInvoiceNumber = invoice.extractAndIncreaseInvoiceNumber();

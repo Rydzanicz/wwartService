@@ -51,6 +51,10 @@ public class Order {
         return priceWithVAT;
     }
 
+    public double getPriceWithVATToPay() {
+        return priceWithVAT * quantity;
+    }
+
     public double getVAT() {
         return priceWithVAT - price;
     }
